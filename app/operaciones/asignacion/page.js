@@ -1,5 +1,5 @@
-import "./dispatch.css";
 "use client";
+import "./dispatch.css";
 import {useMemo,useState} from "react";
 import {rankCouriers} from "../../../lib/dispatch";
 const seed=[
