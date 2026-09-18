@@ -1,5 +1,5 @@
-import "./operations.css";
 "use client";
+import "./operations.css";
 import {useState} from "react";
 const initial=[
 {id:"CF-R001",name:"Juan Pérez",phone:"826 000 1122",status:"En entrega",orders:14,accept:"96%",zone:"Centro",vehicle:"Moto",docs:"Verificado"},
