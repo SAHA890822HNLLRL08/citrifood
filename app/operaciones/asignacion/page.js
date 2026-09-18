@@ -1,3 +1,4 @@
+import "./dispatch.css";
 "use client";
 import {useMemo,useState} from "react";
 import {rankCouriers} from "../../lib/dispatch";
