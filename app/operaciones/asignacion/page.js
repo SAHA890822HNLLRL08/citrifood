@@ -1,7 +1,7 @@
 import "./dispatch.css";
 "use client";
 import {useMemo,useState} from "react";
-import {rankCouriers} from "../../lib/dispatch";
+import {rankCouriers} from "../../../lib/dispatch";
 const seed=[
 {id:"CF-R001",name:"Juan Pérez",distanceKm:1.0,online:true,available:true,documentsApproved:true,suspended:false,onTimeRate:.79,completionRate:.91,cancelRate:.12,rating:4.2,validIncidents:2},
 {id:"CF-R002",name:"Pedro García",distanceKm:1.5,online:true,available:true,documentsApproved:true,suspended:false,onTimeRate:.97,completionRate:.99,cancelRate:.01,rating:4.9,validIncidents:0},
