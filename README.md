@@ -6,12 +6,12 @@ Plataforma local de entrega de comida.
 Rama de desarrollo: develop
 
 Rutas de demostración:
-- / — Cliente
+- / — Cliente\n- /acceso — Selector de perfiles de prueba
 - /repartidor — Repartidor y ruta activa
 - /repartidor/pedido — Ciclo de entrega
-- /repartidor/cartera — Cartera y control de efectivo
+- /repartidor/cartera — Cartera y control de efectivo\n- /repartidor/perfil — Desempeño del repartidor
 - /operaciones — Centro de operaciones
-- /operaciones/asignacion — Asignación inteligente
+- /operaciones/asignacion — Asignación inteligente\n- /operaciones/pedidos — Monitor de pedidos\n- /operaciones/solicitudes — Altas de repartidores\n- /operaciones/incidencias — Revisión de incidencias\n- /restaurante — Portal del restaurante
 
 ## Desarrollo local
 
