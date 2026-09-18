@@ -1,3 +1,4 @@
+import "./operations.css";
 "use client";
 import {useState} from "react";
 const initial=[
