@@ -1,0 +1,18 @@
+"use client";
+import {useEffect,useState} from "react";
+import {clearMvp,loadMvp,subscribeOrders} from "../../lib/mvp-store.js";
+import {loadPromotions,subscribePromotions} from "../../lib/promotions.js";
+import "./pruebas.css";
+const steps=[
+["1. Cliente","/","Elige restaurante, agrega una promoción y confirma el pedido simulado."],
+["2. Restaurante","/restaurante","Selecciona el mismo restaurante, acepta el pedido, prepáralo y márcalo listo."],
+["3. Operaciones","/operaciones/pedidos","Busca el número de pedido y pulsa «Asignar a Juan (demo)»."],
+["4. Repartidor","/repartidor","En pedidos asignados desde Operaciones, confirma la entrega."],
+["5. Cliente","/","En «Mis pedidos», revisa que el pedido esté entregado."],
+["6. Promociones","/restaurante","Crea una promoción, actívala o páusala y verifica su posición al inicio del menú."]
+];
+export default function Pruebas(){
+ const[orders,setOrders]=useState([]),[promos,setPromos]=useState({}),[message,setMessage]=useState("");
+ useEffect(()=>{const refreshOrders=()=>setOrders(loadMvp().orders),refreshPromos=()=>setPromos(loadPromotions());refreshOrders();refreshPromos();const stopOrders=subscribeOrders(refreshOrders),stopPromos=subscribePromotions(refreshPromos);return()=>{stopOrders();stopPromos()}},[]);
+ const reset=()=>{if(window.confirm("¿Borrar todos los pedidos de demostración de este navegador?")){clearMvp();localStorage.removeItem("citrifood_customer_orders");setMessage("Pedidos de prueba borrados. Las promociones se conservaron.")}};
+ return <main className="testHub"><header><a href="/">← CitriFood</a><b>Centro de pruebas</b></header><h1>🧪 Calar CitriFood</h1><p>Esta guía es para probar el MVP en un solo navegador. Abre los módulos en pestañas del mismo navegador: no hay base de datos compartida, GPS, cobros ni cuentas reales.</p><div className="testMetrics"><article><small>Pedidos creados</small><strong>{orders.length}</strong></article><article><small>Por aceptar</small><strong>{orders.filter(o=>o.status==="Nuevo").length}</strong></article><article><small>En entrega</small><strong>{orders.filter(o=>o.status==="En entrega").length}</strong></article><article><small>Entregados</small><strong>{orders.filter(o=>o.status==="Entregado").length}</strong></article></div><h2>Recorrido recomendado</h2><ol>{steps.map(([title,path,description])=><li key={title}><div><strong>{title}</strong><p>{description}</p></div><a href={path} target="_blank" rel="noopener noreferrer">Abrir ↗</a></li>)}</ol><h2>Promociones activas por restaurante</h2><div className="testPromoList">{Object.entries(promos).map(([name,list])=><p key={name}><b>{name}</b><span>{list.filter(p=>p.active!==false).length} activas · {list.filter(p=>p.active!==false&&p.sponsored===true).length} patrocinadas (demo)</span></p>)}</div><section className="testReset"><h2>Reiniciar pedidos de prueba</h2><p>Elimina únicamente pedidos y su historial del navegador actual. No elimina las promociones.</p><button onClick={reset}>Borrar pedidos de prueba</button>{message&&<p role="status">{message}</p>}</section></main>
