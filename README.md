@@ -37,3 +37,6 @@ Abre `/` y `/restaurante` (Tacos El Centro) y `/operaciones/pedidos` en pestaña
 5. Regresa al cliente: seguimiento y «Mis pedidos» muestran «Entregado».
 
 Las tarjetas `CF-DEMO-` son ejemplos estáticos; los pedidos creados por el cliente sí cambian de estado entre pestañas del mismo origen. No utilizar pedidos reales ni datos sensibles. No hay GPS, cobros ni sincronización entre teléfonos. Para verificar calidad: `npm test` y `npm run build`.
+
+## Promociones de restaurantes
+En `/restaurante`, elige un restaurante y usa «Nueva promoción» para definir nombre, descripción y precio en MXN. Puedes pausar y reactivar las ofertas. Las activas aparecen primero al entrar al menú de ese restaurante y pueden agregarse al carrito. Las promociones patrocinadas de portada son una demostración de espacios publicitarios, no una contratación ni un cobro. Los cambios se guardan únicamente en localStorage del mismo navegador; no hay todavía panel autenticado ni campañas de publicidad reales.
