@@ -2,6 +2,7 @@
 import {useEffect,useState} from "react";
 import {loadMvp,subscribeOrders,updateOrder} from "../../../lib/mvp-store.js";
 import "./orders.css";
+import {ordersToCsv} from "../../../lib/order-export.js";
 
 const seed=[
  {id:"CF-DEMO-3",restaurant:"Tacos El Centro",customer:"María (ejemplo)",courier:"Sin asignar",status:"Preparando",payment:"Efectivo",total:245},
@@ -15,6 +16,7 @@ export default function Pedidos(){
  const[actual,setActual]=useState([]);
  const[expanded,setExpanded]=useState(null);
  useEffect(()=>{const refresh=()=>setActual(loadMvp().orders);refresh();return subscribeOrders(refresh)},[]);
+ const downloadCsv=()=>{const content=ordersToCsv(rows.filter(o=>!o.id.startsWith("CF-DEMO-")));const blob=new Blob([content],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="citrifood-pedidos-demo-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  const all=[...actual,...seed];
  const search=query.trim().toLocaleLowerCase("es-MX");
  const rows=all.filter(x=>(filter==="Todos"||x.status===filter)&&(!search||[x.id,x.restaurant,x.customer,x.address,x.courier].some(v=>String(v||"").toLocaleLowerCase("es-MX").includes(search))));
@@ -26,7 +28,7 @@ export default function Pedidos(){
    <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Ej. CF-, Burger House o Centro"/>
   </label>
   <div className="filters">{statuses.map(x=><button type="button" className={filter===x?"on":""} onClick={()=>setFilter(x)} key={x}>{x} ({x==="Todos"?all.length:all.filter(o=>o.status===x).length})</button>)}</div>
-  <p className="orderCount">{rows.length} pedidos mostrados</p>
+  <div className="orderToolbar"><p className="orderCount">{rows.length} pedidos mostrados</p><button type="button" disabled={!rows.some(o=>!o.id.startsWith("CF-DEMO-"))} onClick={downloadCsv}>↓ Exportar pedidos filtrados (CSV)</button></div>
   <section>{rows.length===0&&<p>No hay pedidos que coincidan con la búsqueda o el estado.</p>}
    {rows.map(x=><article key={x.id}>
     <div><small>{x.id}{x.id.startsWith("CF-DEMO-")?" · EJEMPLO":""}</small><h2>{x.restaurant}</h2><p>{x.customer} · {x.paymentMethod||x.payment} · $ {x.total}</p></div>
