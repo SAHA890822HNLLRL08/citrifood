@@ -49,3 +49,6 @@ La promoción activa siempre aparece al principio del menú del restaurante. El 
 
 ## Cancelación de pedidos de prueba
 El cliente puede cancelar su pedido mientras siga en estado `Nuevo`. Una vez que el restaurante lo acepta (`Preparando`), el botón desaparece y el sistema rechaza intentos de cancelación. `Cancelado` es un estado terminal, permanece en «Mis pedidos» y se puede filtrar en Operaciones. Es una simulación: no hay reembolsos ni cargos reales.
+
+## Consulta de pedidos en Operaciones
+En `/operaciones/pedidos` se puede buscar por folio, restaurante, cliente, dirección o repartidor; filtrar por estado y consultar cantidades por filtro. «Ver detalle» muestra dirección, productos, importe de envío y cronología de movimientos de los pedidos creados en este navegador. Las tarjetas `CF-DEMO-` permanecen identificadas como ejemplos y no contienen expedientes reales.
