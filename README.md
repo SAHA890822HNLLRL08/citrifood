@@ -55,3 +55,6 @@ En `/operaciones/pedidos` se puede buscar por folio, restaurante, cliente, direc
 
 ## Exportación de pedidos (demostración)
 En `/operaciones/pedidos`, filtra o busca pedidos y pulsa «Exportar pedidos filtrados (CSV)». El archivo incluye folio, fechas, restaurante, cliente, dirección, estado, pago, total, envío y repartidor. Se excluyen los pedidos estáticos `CF-DEMO-`. El archivo sale únicamente de los datos de prueba del navegador actual y no representa un reporte contable ni un historial centralizado. Los campos de texto se escapan para evitar que una hoja de cálculo ejecute fórmulas ingresadas como datos.
+
+## Reporte por restaurante (MVP)
+La ruta `/operaciones/reportes` resume los pedidos creados en el navegador actual por restaurante: total, activos, entregados, cancelados, rechazados y valor bruto de los pedidos marcados como entregados. Excluye tarjetas ilustrativas `CF-DEMO-`. No calcula utilidad, comisiones, pagos, facturación ni dinero cobrado. Se actualiza entre pestañas del mismo navegador.
