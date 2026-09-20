@@ -46,3 +46,6 @@ La ruta `/pruebas` ofrece instrucciones para recorrer cliente → restaurante �
 
 ## Publicidad simulada
 La promoción activa siempre aparece al principio del menú del restaurante. El interruptor «Patrocinada (demo)» controla por separado si esa promoción aparece también en «Promociones para ti» de la portada, con etiqueta visible de patrocinio. Activar ese interruptor no representa una campaña contratada, no genera facturas y no cobra dinero. La autorización comercial, duración, facturación y límites de publicidad quedan pendientes de un backend real y del panel de Operaciones.
+
+## Cancelación de pedidos de prueba
+El cliente puede cancelar su pedido mientras siga en estado `Nuevo`. Una vez que el restaurante lo acepta (`Preparando`), el botón desaparece y el sistema rechaza intentos de cancelación. `Cancelado` es un estado terminal, permanece en «Mis pedidos» y se puede filtrar en Operaciones. Es una simulación: no hay reembolsos ni cargos reales.
