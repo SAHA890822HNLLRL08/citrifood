@@ -40,3 +40,9 @@ Las tarjetas `CF-DEMO-` son ejemplos estáticos; los pedidos creados por el clie
 
 ## Promociones de restaurantes
 En `/restaurante`, elige un restaurante y usa «Nueva promoción» para definir nombre, descripción y precio en MXN. Puedes pausar y reactivar las ofertas. Las activas aparecen primero al entrar al menú de ese restaurante y pueden agregarse al carrito. Las promociones patrocinadas de portada son una demostración de espacios publicitarios, no una contratación ni un cobro. Los cambios se guardan únicamente en localStorage del mismo navegador; no hay todavía panel autenticado ni campañas de publicidad reales.
+
+## Centro de pruebas
+La ruta `/pruebas` ofrece instrucciones para recorrer cliente → restaurante → operaciones → repartidor → cliente, contadores de pedidos del navegador, resumen de promociones y un botón de reinicio de pedidos de demostración (con confirmación). El reinicio no borra las promociones.
+
+## Publicidad simulada
+La promoción activa siempre aparece al principio del menú del restaurante. El interruptor «Patrocinada (demo)» controla por separado si esa promoción aparece también en «Promociones para ti» de la portada, con etiqueta visible de patrocinio. Activar ese interruptor no representa una campaña contratada, no genera facturas y no cobra dinero. La autorización comercial, duración, facturación y límites de publicidad quedan pendientes de un backend real y del panel de Operaciones.
