@@ -52,3 +52,6 @@ El cliente puede cancelar su pedido mientras siga en estado `Nuevo`. Una vez que
 
 ## Consulta de pedidos en Operaciones
 En `/operaciones/pedidos` se puede buscar por folio, restaurante, cliente, dirección o repartidor; filtrar por estado y consultar cantidades por filtro. «Ver detalle» muestra dirección, productos, importe de envío y cronología de movimientos de los pedidos creados en este navegador. Las tarjetas `CF-DEMO-` permanecen identificadas como ejemplos y no contienen expedientes reales.
+
+## Exportación de pedidos (demostración)
+En `/operaciones/pedidos`, filtra o busca pedidos y pulsa «Exportar pedidos filtrados (CSV)». El archivo incluye folio, fechas, restaurante, cliente, dirección, estado, pago, total, envío y repartidor. Se excluyen los pedidos estáticos `CF-DEMO-`. El archivo sale únicamente de los datos de prueba del navegador actual y no representa un reporte contable ni un historial centralizado. Los campos de texto se escapan para evitar que una hoja de cálculo ejecute fórmulas ingresadas como datos.
