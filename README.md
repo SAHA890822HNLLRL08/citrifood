@@ -64,3 +64,6 @@ En `/operaciones/reportes` puedes filtrar por restaurante y rango de fechas de c
 
 ## Datos de entrega en el MVP
 El cliente puede escribir un nombre de quien recibe y notas de entrega opcionales durante el pedido. Las notas se muestran en seguimiento, restaurante, detalle de Operaciones y pedidos asignados al repartidor. Son datos de demostración guardados en el navegador: no ingresar direcciones, teléfonos ni otros datos sensibles reales hasta contar con cuentas, backend y controles de privacidad.
+
+## Incidencias de entrega (demo)
+El repartidor asignado puede reportar un problema de hasta 250 caracteres mientras el pedido está «En entrega». Operaciones dispone del filtro «Solo incidencias pendientes», puede consultar el reporte y marcarlo como atendido; la incidencia permanece registrada en el pedido. No genera mensajes SMS, llamadas, tickets externos ni notificaciones entre dispositivos. La entrega y el manejo de incidencias son de prueba y se guardan en el navegador.
