@@ -61,3 +61,6 @@ La ruta `/operaciones/reportes` resume los pedidos creados en el navegador actua
 
 ## Filtros de reportes de demostración
 En `/operaciones/reportes` puedes filtrar por restaurante y rango de fechas de creación del pedido (fecha UTC). Las cifras se recalculan para el periodo seleccionado; el valor mostrado corresponde exclusivamente a pedidos marcados como entregados, no a ingresos cobrados o utilidad. Los filtros no modifican ni eliminan pedidos.
+
+## Datos de entrega en el MVP
+El cliente puede escribir un nombre de quien recibe y notas de entrega opcionales durante el pedido. Las notas se muestran en seguimiento, restaurante, detalle de Operaciones y pedidos asignados al repartidor. Son datos de demostración guardados en el navegador: no ingresar direcciones, teléfonos ni otros datos sensibles reales hasta contar con cuentas, backend y controles de privacidad.
