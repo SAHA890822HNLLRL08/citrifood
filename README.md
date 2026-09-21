@@ -58,3 +58,6 @@ En `/operaciones/pedidos`, filtra o busca pedidos y pulsa «Exportar pedidos fil
 
 ## Reporte por restaurante (MVP)
 La ruta `/operaciones/reportes` resume los pedidos creados en el navegador actual por restaurante: total, activos, entregados, cancelados, rechazados y valor bruto de los pedidos marcados como entregados. Excluye tarjetas ilustrativas `CF-DEMO-`. No calcula utilidad, comisiones, pagos, facturación ni dinero cobrado. Se actualiza entre pestañas del mismo navegador.
+
+## Filtros de reportes de demostración
+En `/operaciones/reportes` puedes filtrar por restaurante y rango de fechas de creación del pedido (fecha UTC). Las cifras se recalculan para el periodo seleccionado; el valor mostrado corresponde exclusivamente a pedidos marcados como entregados, no a ingresos cobrados o utilidad. Los filtros no modifican ni eliminan pedidos.
