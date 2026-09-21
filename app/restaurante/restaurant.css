@@ -4,3 +4,5 @@
 .promoActions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.promoActions label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}.promoActions input{width:17px;height:17px;accent-color:#1f9d55}@media(max-width:600px){.promoActions{width:100%;justify-content:space-between}}
 
 .restaurantPicker{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#f1f7f2;border:1px solid #dce9de;padding:14px 18px;border-radius:14px;font-weight:700;margin:15px 0}.restaurantPicker select{font:inherit;flex:1;min-width:170px;border:1px solid #cbd9cf;background:white;border-radius:10px;padding:11px;color:#172019}.restaurantActions button{cursor:pointer}.restaurantOrders>article:has(.restaurantStatus){min-width:0}.restaurantOrders>article p{overflow-wrap:anywhere}
+
+.restaurantDeliveryInfo{background:#f4f8f5;border-radius:10px;padding:9px 12px;margin:10px 0}.restaurantDeliveryInfo p{margin:6px 0;font-size:13px;line-height:1.5}
