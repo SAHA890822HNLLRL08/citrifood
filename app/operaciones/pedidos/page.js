@@ -19,7 +19,7 @@ export default function Pedidos(){
  const downloadCsv=()=>{const content=ordersToCsv(rows.filter(o=>!o.id.startsWith("CF-DEMO-")));const blob=new Blob([content],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="citrifood-pedidos-demo-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  const all=[...actual,...seed];
  const search=query.trim().toLocaleLowerCase("es-MX");
- const rows=all.filter(x=>(filter==="Todos"||x.status===filter)&&(!search||[x.id,x.restaurant,x.customer,x.address,x.courier].some(v=>String(v||"").toLocaleLowerCase("es-MX").includes(search))));
+ const rows=all.filter(x=>(filter==="Todos"||x.status===filter)&&(!search||[x.id,x.restaurant,x.customer,x.address,x.deliveryNotes,x.courier].some(v=>String(v||"").toLocaleLowerCase("es-MX").includes(search))));
  return <main className="ordersAdmin">
   <header><a href="/operaciones">← Operaciones</a><b>CitriFood · Pedidos</b></header>
   <h1>Pedidos</h1>
@@ -38,7 +38,7 @@ export default function Pedidos(){
     </div>
     {expanded===x.id&&<div className="orderDetails">
      {x.id.startsWith("CF-DEMO-")?<p>Esta tarjeta es ilustrativa y no contiene datos de un cliente real.</p>:<>
-      <p><b>Dirección:</b> {x.address||"No registrada"}</p>
+      <p><b>Dirección:</b> {x.address||"No registrada"}</p>{x.deliveryNotes&&<p><b>Indicaciones de entrega:</b> {x.deliveryNotes}</p>}
       <p><b>Creado:</b> {x.createdAt?new Date(x.createdAt).toLocaleString("es-MX"):"Sin fecha"}</p>
       <p><b>Envío:</b> $ {x.deliveryFee??"No registrado"}</p>
       <h3>Productos</h3>
