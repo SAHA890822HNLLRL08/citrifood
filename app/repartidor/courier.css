@@ -2,3 +2,5 @@
 .viewOrder{border:0;border-radius:9px;padding:8px;background:#eef1ee;color:#172019;text-decoration:none;text-align:center}.courier nav a{border:0;background:white;font-size:20px;text-align:center;text-decoration:none;color:#172019}.courier nav a small{display:block;font-size:10px}
 
 .courierNotes{background:#fff4e8;color:#7a411c;border-radius:8px;padding:9px;overflow-wrap:anywhere}
+
+.courier .route article:has(.courierIssueForm){grid-template-columns:1fr}.courierOrderActions{display:flex;flex-direction:column;gap:8px}.courierOrderActions button,.courierIssueForm button{border:0;background:#1f9d55;color:white;border-radius:9px;padding:10px;font-weight:700;cursor:pointer}.courierOrderActions .courierIssueButton{background:#fff0df;color:#8b4800}.courierIssueAlert,.courierIssueForm{grid-column:1/-1;background:#fff5e8;border-radius:10px;padding:12px;overflow-wrap:anywhere}.courierIssueForm label{display:grid;gap:8px}.courierIssueForm textarea{width:100%;box-sizing:border-box;min-height:75px;padding:10px;font:inherit;border:1px solid #d9c4a7;border-radius:8px}.courierIssueForm button:disabled{opacity:.5}
