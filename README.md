@@ -67,3 +67,6 @@ El cliente puede escribir un nombre de quien recibe y notas de entrega opcionale
 
 ## Incidencias de entrega (demo)
 El repartidor asignado puede reportar un problema de hasta 250 caracteres mientras el pedido está «En entrega». Operaciones dispone del filtro «Solo incidencias pendientes», puede consultar el reporte y marcarlo como atendido; la incidencia permanece registrada en el pedido. No genera mensajes SMS, llamadas, tickets externos ni notificaciones entre dispositivos. La entrega y el manejo de incidencias son de prueba y se guardan en el navegador.
+
+### Seguimiento de incidencias
+Una incidencia pendiente impide confirmar el pedido como entregado hasta que Operaciones la marque atendida. El panel de Operaciones muestra el número de incidencias pendientes y el detalle del pedido conserva las incidencias anteriores atendidas. Este bloqueo es únicamente una regla del MVP en el navegador; no sustituye protocolos de seguridad ni asistencia real.
