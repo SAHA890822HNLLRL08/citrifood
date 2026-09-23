@@ -9,7 +9,7 @@ import {incidentRows} from "../lib/incident-report.js";
 import {canMessageOrder,containsContactDetails,orderMessages,sendOrderMessage} from "../lib/order-chat.js";
 import {CHAT_RETENTION_MS,pruneOrderChats,retainedMessages} from "../lib/chat-retention.js";
 import {checkSupabaseConnectivity,deploymentReadiness,supabaseConfig} from "../lib/deployment-readiness.js";
-import {customerOrderPayload,customerOrdersRequest} from "../lib/shared-orders.js";
+import {customerOrderPayload,customerOrdersRequest,validAccessToken} from "../lib/shared-orders.js";
 import {addOrder,cancelOrder,canTransitionOrder,createOrder,clearMvp,expireStoredChats,getOrder,loadMvp,reportDeliveryIssue,resolveDeliveryIssue,updateOrder} from "../lib/mvp-store.js";
 import {addPromotion,initialPromotions,loadPromotions,promotionsFor,setPromotionActive,setPromotionSponsored,sponsoredPromotions} from "../lib/promotions.js";
 const courier=(id,distanceKm,extra={})=>({id,distanceKm,online:true,available:true,documentsApproved:true,suspended:false,onTimeRate:.98,completionRate:.99,cancelRate:.01,rating:4.9,validIncidents:0,...extra});
@@ -114,7 +114,7 @@ test("shared orders require valid authenticated session and pass user token, not
  const result=await customerOrdersRequest("GET",token,null,env,fetcher);
  assert.equal(result.status,200);
  assert.equal(requests.length,2);
- assert.match(requests[1].url,/customer_id=eq\\.123e4567/);
+ assert.ok(requests[1].url.includes("customer_id=eq."+id));
  assert.equal(requests[1].options.headers.Authorization,"Bearer "+token);
  assert.equal(JSON.stringify(requests).includes("private-key"),false);
 });
