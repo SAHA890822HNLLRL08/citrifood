@@ -6,9 +6,10 @@ if(!base){console.error("Usage: npm run smoke:pilot -- https://your-domain");pro
 let origin;
 try{
  const url=new URL(base);
- if(url.protocol!=="https:"||url.username||url.password||url.pathname!=="/"||url.search||url.hash)throw Error();
+ const local=url.protocol==="http:"&&["localhost","127.0.0.1"].includes(url.hostname);
+ if(!(url.protocol==="https:"||local)||url.username||url.password||url.pathname!=="/"||url.search||url.hash)throw Error();
  origin=url.origin;
-}catch{console.error("Provide an HTTPS origin, for example https://your-domain");process.exit(2)}
+}catch{console.error("Provide an HTTPS origin, or http://127.0.0.1:3000 for local CI");process.exit(2)}
 const checks=[
  {path:"/api/health",method:"GET",status:200,verify:data=>data.application==="CitriFood"&&data.readyForRealOrders===false},
  {path:"/api/orders",method:"GET",status:401},
