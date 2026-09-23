@@ -51,3 +51,9 @@ En la demostración, al mantener la aplicación abierta se revisan mensajes cadu
 
 ### Verificación pública de preparación
 La ruta `/api/health` y la pantalla `/pruebas` informan de forma explícita si el proyecto sigue en modo demo y si hay variables básicas de base de datos configuradas. **La presencia de variables no prueba conectividad ni autoriza pedidos reales.** El endpoint nunca devuelve credenciales. `.env.example` documenta los nombres de variables sin incluir valores. Antes de cambiar el estado a «listo», implementar autenticación, backend, flujo entre dispositivos, cobros y pruebas reales de extremo a extremo.
+
+### Avance de integración: comprobación de conexión y protección del chat
+- `/api/health` comprueba desde el servidor si responde el servicio de autenticación de Supabase configurado, con espera máxima de 3.5 segundos. Nunca publica claves ni considera que esa respuesta equivale a pedidos conectados.
+- `/pruebas` distingue «variables configuradas», «servicio responde» y «pedidos entre teléfonos disponibles»; este último sigue **NO** hasta conectar y verificar el flujo completo.
+- La migración `supabase/migrations/202609230002_chat_integrity.sql` impone desde PostgreSQL remitente autenticado, fecha de envío asignada por servidor, vencimiento a los 15 días y filtro básico de números/enlaces externos. Aplicar después de la primera migración. Es una protección parcial, no detección infalible de teléfonos.
+- Para activar la integración hacen falta un proyecto Supabase controlado por CitriFood, URL y clave pública del proyecto y la clave de servicio guardada **solo en el servidor**. No compartir credenciales por chat ni subir `.env.local` a GitHub. Aún no se han aplicado migraciones ni verificado CI/build.
