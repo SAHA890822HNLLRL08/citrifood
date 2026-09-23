@@ -70,3 +70,6 @@ El repartidor asignado puede reportar un problema de hasta 250 caracteres mientr
 
 ### Seguimiento de incidencias
 Una incidencia pendiente impide confirmar el pedido como entregado hasta que Operaciones la marque atendida. El panel de Operaciones muestra el número de incidencias pendientes y el detalle del pedido conserva las incidencias anteriores atendidas. Este bloqueo es únicamente una regla del MVP en el navegador; no sustituye protocolos de seguridad ni asistencia real.
+
+## Centro de incidencias conectado al MVP
+La ruta `/operaciones/incidencias` ahora muestra incidencias registradas en los pedidos de prueba de este navegador, con contadores de pendientes, atendidas e historial, filtros y acceso directo al detalle del pedido. Ya no utiliza las tarjetas ficticias de incidencias para aparentar reportes reales. Operaciones puede marcar atendida la incidencia vigente. No se realizan verificaciones externas ni sanciones a repartidores.
