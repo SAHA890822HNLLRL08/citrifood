@@ -17,4 +17,13 @@ jobs:
           node-version: '22'
       - run: npm install --no-audit --no-fund
       - run: npm run test
-      - run: npm run build
+      - name: Build and capture errors
+        run: npm run build 2>&1 | tee build.log
+      - name: Save build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citrifood-build-log
+          path: build.log
+          if-no-files-found: ignore
+          retention-days: 7
