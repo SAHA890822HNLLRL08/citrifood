@@ -1,13 +1,14 @@
-import {deploymentReadiness} from "../../../lib/deployment-readiness.js";
+import {checkSupabaseConnectivity} from "../../../lib/deployment-readiness.js";
 export const dynamic="force-dynamic";
-export function GET(){
- const state=deploymentReadiness();
+export async function GET(){
+ const connection=await checkSupabaseConnectivity();
  return Response.json({
   application:"CitriFood",
-  mode:state.mode,
+  mode:"demo-local",
   crossDeviceOrders:false,
-  databaseConfigured:state.databaseConfigured,
-  // Credentials are never returned, even as partial values.
+  databaseConfigured:connection.databaseConfigured,
+  databaseReachable:connection.databaseReachable,
+  // Reachable auth does not mean the schema, roles, orders or chat are ready.
   readyForRealOrders:false,
   message:"MVP de demostración: sin pedidos sincronizados, pagos ni cuentas reales."
  },{headers:{"Cache-Control":"no-store"}});
