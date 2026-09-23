@@ -10,7 +10,32 @@ export default function Piloto(){
  }
  async function action(fn){setBusy(true);setNotice("");try{await fn()}catch(e){setNotice(e.message||"No se pudo completar la solicitud.")}finally{setBusy(false)}}
  const refresh=async token=>{const [customer,staff,ops]=await Promise.all([call("/api/orders",undefined,token),call("/api/restaurant/orders",undefined,token),call("/api/operations/orders",undefined,token).catch(()=>({orders:[]}))]);setOrders(customer.orders||[]);setRestaurantOrders(staff.orders||[]);setAssignedRestaurants(staff.restaurants||[]);setOperationsOrders(ops.orders||[]);const roster=await call("/api/operations/couriers",undefined,token).catch(()=>({couriers:[]}));setCouriers(roster.couriers||[]);const delivery=await call("/api/courier/orders",undefined,token).catch(()=>({courier:null,orders:[]}));setCourierName(delivery.courier||null);setCourierOrders(delivery.orders||[])};
- useEffect(()=>{if(!accessToken)return;let active=true;const refreshSilently=async()=>{try{const [data,staff,ops]=await Promise.all([call("/api/orders",undefined,accessToken),call("/api/restaurant/orders",undefined,accessToken),call("/api/operations/orders",undefined,accessToken).catch(()=>({orders:[]}))]);if(active){setOrders(data.orders||[]);setRestaurantOrders(staff.orders||[]);setAssignedRestaurants(staff.restaurants||[]);setOperationsOrders(ops.orders||[]);const roster=await call("/api/operations/couriers",undefined,accessToken).catch(()=>({couriers:[]}));if(active)setCouriers(roster.couriers||[]);const delivery=await call("/api/courier/orders",undefined,accessToken).catch(()=>({courier:null,orders:[]}));if(active){setCourierName(delivery.courier||null);setCourierOrders(delivery.orders||[])}}catch{ /* Manual refresh displays errors. */ }};const timer=setInterval(refreshSilently,10000);const onFocus=()=>{refreshSilently()};window.addEventListener("focus",onFocus);return()=>{active=false;clearInterval(timer);window.removeEventListener("focus",onFocus)}},[accessToken]);
+ useEffect(()=>{
+  if(!accessToken)return;
+  let active=true;
+  const refreshSilently=async()=>{
+   try{
+    const [customer,staff,ops,roster,delivery]=await Promise.all([
+     call("/api/orders",undefined,accessToken),
+     call("/api/restaurant/orders",undefined,accessToken),
+     call("/api/operations/orders",undefined,accessToken).catch(()=>({orders:[]})),
+     call("/api/operations/couriers",undefined,accessToken).catch(()=>({couriers:[]})),
+     call("/api/courier/orders",undefined,accessToken).catch(()=>({courier:null,orders:[]}))
+    ]);
+    if(!active)return;
+    setOrders(customer.orders||[]);
+    setRestaurantOrders(staff.orders||[]);
+    setAssignedRestaurants(staff.restaurants||[]);
+    setOperationsOrders(ops.orders||[]);
+    setCouriers(roster.couriers||[]);
+    setCourierName(delivery.courier||null);
+    setCourierOrders(delivery.orders||[]);
+   }catch{ /* Manual refresh displays errors. */ }
+  };
+  const timer=setInterval(refreshSilently,10000);
+  window.addEventListener("focus",refreshSilently);
+  return()=>{active=false;clearInterval(timer);window.removeEventListener("focus",refreshSilently)};
+ },[accessToken]);
  return <main style={{maxWidth:680,margin:"auto",padding:24,fontFamily:"system-ui"}}>
   <a href="/pruebas">← Centro de pruebas</a><h1>CitriFood · piloto conectado</h1>
   <p><b>En preparación:</b> esta pantalla solo funcionará después de configurar Supabase y aplicar las migraciones. No hay cobros ni repartidores conectados. Usa datos ficticios hasta verificar permisos y privacidad.</p>
