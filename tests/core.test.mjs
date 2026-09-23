@@ -8,7 +8,7 @@ import {orderMetrics} from "../lib/order-metrics.js";
 import {incidentRows} from "../lib/incident-report.js";
 import {canMessageOrder,containsContactDetails,orderMessages,sendOrderMessage} from "../lib/order-chat.js";
 import {CHAT_RETENTION_MS,pruneOrderChats,retainedMessages} from "../lib/chat-retention.js";
-import {deploymentReadiness} from "../lib/deployment-readiness.js";
+import {checkSupabaseConnectivity,deploymentReadiness,supabaseConfig} from "../lib/deployment-readiness.js";
 import {addOrder,cancelOrder,canTransitionOrder,createOrder,clearMvp,expireStoredChats,getOrder,loadMvp,reportDeliveryIssue,resolveDeliveryIssue,updateOrder} from "../lib/mvp-store.js";
 import {addPromotion,initialPromotions,loadPromotions,promotionsFor,setPromotionActive,setPromotionSponsored,sponsoredPromotions} from "../lib/promotions.js";
 const courier=(id,distanceKm,extra={})=>({id,distanceKm,online:true,available:true,documentsApproved:true,suspended:false,onTimeRate:.98,completionRate:.99,cancelRate:.01,rating:4.9,validIncidents:0,...extra});
@@ -54,3 +54,17 @@ test("reading demo store removes expired chat from persisted storage",()=>{const
 test("active demo cleanup removes expired messages and reports whether anything changed",()=>{const values=new Map();const prevWindow=globalThis.window,prevStorage=globalThis.localStorage,prevEvent=globalThis.Event;let events=0;globalThis.Event=class{constructor(type){this.type=type}};globalThis.window={dispatchEvent(){events++}};globalThis.localStorage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)};try{values.set("citrifood_mvp",JSON.stringify({orders:[{id:"CF-2",messages:[{role:"Cliente",at:"2020-01-01T00:00:00.000Z",body:"antiguo"}]}]}));assert.equal(expireStoredChats(),true);assert.equal(events,1);assert.equal(expireStoredChats(),false);assert.equal(events,1);assert.deepEqual(JSON.parse(values.get("citrifood_mvp")).orders[0].messages,[])}finally{if(prevWindow===undefined)delete globalThis.window;else globalThis.window=prevWindow;if(prevStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=prevStorage;if(prevEvent===undefined)delete globalThis.Event;else globalThis.Event=prevEvent}});
 
 test("pilot readiness never exposes credentials or falsely claims live orders",()=>{const empty=deploymentReadiness({});assert.equal(empty.databaseConfigured,false);assert.equal(empty.connected,false);assert.equal(empty.mode,"demo-local");const configured=deploymentReadiness({SUPABASE_URL:"https://example.supabase.co",SUPABASE_ANON_KEY:"test-public",SUPABASE_SERVICE_ROLE_KEY:"private-do-not-expose"});assert.equal(configured.databaseConfigured,true);assert.equal(configured.connected,false);assert.equal(JSON.stringify(configured).includes("private-do-not-expose"),false);assert.equal(deploymentReadiness({SUPABASE_URL:"http://example.com",SUPABASE_ANON_KEY:"key"}).databaseConfigured,false)});
+
+test("Supabase connectivity checks configured endpoint without leaking secrets",async()=>{
+ const env={SUPABASE_URL:"https://demo.supabase.co",SUPABASE_ANON_KEY:"test-public"};
+ let request=null;
+ const ok=await checkSupabaseConnectivity(env,async(url,options)=>{request={url,options};return {ok:true}});
+ assert.deepEqual(ok,{databaseConfigured:true,databaseReachable:true});
+ assert.equal(request.url,"https://demo.supabase.co/auth/v1/health");
+ assert.equal(request.options.headers.apikey,"test-public");
+ assert.equal(request.options.redirect,"error");
+ assert.equal(JSON.stringify(ok).includes("test-public"),false);
+ assert.deepEqual(await checkSupabaseConnectivity(env,async()=>{throw Error("offline")}),{databaseConfigured:true,databaseReachable:false});
+ assert.deepEqual(await checkSupabaseConnectivity({},async()=>{throw Error("should not fetch")}),{databaseConfigured:false,databaseReachable:false});
+ assert.equal(supabaseConfig({SUPABASE_URL:"https://demo.supabase.co/other",SUPABASE_ANON_KEY:"key"}),null);
+});
