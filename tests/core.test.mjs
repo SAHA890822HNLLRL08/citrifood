@@ -9,6 +9,7 @@ import {incidentRows} from "../lib/incident-report.js";
 import {canMessageOrder,containsContactDetails,orderMessages,sendOrderMessage} from "../lib/order-chat.js";
 import {CHAT_RETENTION_MS,pruneOrderChats,retainedMessages} from "../lib/chat-retention.js";
 import {checkSupabaseConnectivity,deploymentReadiness,supabaseConfig} from "../lib/deployment-readiness.js";
+import {customerOrderPayload,customerOrdersRequest} from "../lib/shared-orders.js";
 import {addOrder,cancelOrder,canTransitionOrder,createOrder,clearMvp,expireStoredChats,getOrder,loadMvp,reportDeliveryIssue,resolveDeliveryIssue,updateOrder} from "../lib/mvp-store.js";
 import {addPromotion,initialPromotions,loadPromotions,promotionsFor,setPromotionActive,setPromotionSponsored,sponsoredPromotions} from "../lib/promotions.js";
 const courier=(id,distanceKm,extra={})=>({id,distanceKm,online:true,available:true,documentsApproved:true,suspended:false,onTimeRate:.98,completionRate:.99,cancelRate:.01,rating:4.9,validIncidents:0,...extra});
@@ -67,4 +68,28 @@ test("Supabase connectivity checks configured endpoint without leaking secrets",
  assert.deepEqual(await checkSupabaseConnectivity(env,async()=>{throw Error("offline")}),{databaseConfigured:true,databaseReachable:false});
  assert.deepEqual(await checkSupabaseConnectivity({},async()=>{throw Error("should not fetch")}),{databaseConfigured:false,databaseReachable:false});
  assert.equal(supabaseConfig({SUPABASE_URL:"https://demo.supabase.co/other",SUPABASE_ANON_KEY:"key"}),null);
+});
+
+test("shared pilot order rejects forged totals and does not trust client ownership",()=>{
+ const id="123e4567-e89b-42d3-a456-426614174000";
+ const base={restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:2,price:100}],deliveryFee:20,total:220,customer_id:"attacker",status:"Entregado",courier_id:"attacker"};
+ const good=customerOrderPayload(base,id);
+ assert.equal(good.customer_id,id);assert.equal(good.total_cents,22000);assert.equal(good.status,undefined);assert.equal(good.courier_id,undefined);
+ assert.equal(customerOrderPayload({...base,total:1},id),null);
+ assert.equal(customerOrderPayload({...base,items:[{name:"Pizza",qty:1,price:1.5}]},id),null);
+ assert.equal(customerOrderPayload({...base,address:"x"},id),null);
+});
+test("shared orders require verified user token and scope database queries",async()=>{
+ const id="123e4567-e89b-42d3-a456-426614174000";
+ const env={SUPABASE_URL:"https://demo.supabase.co",SUPABASE_ANON_KEY:"public-key"};
+ const calls=[];
+ const fetcher=async(url,options)=>{calls.push({url,options});return url.includes("/auth/v1/user")?{ok:true,json:async()=>({id})}:{ok:true,json:async()=>([{id}])}};
+ assert.equal((await customerOrdersRequest("GET","",null,env,fetcher)).status,401);
+ assert.equal(calls.length,0);
+ const result=await customerOrdersRequest("GET","x".repeat(25),null,env,fetcher);
+ assert.equal(result.status,200);assert.equal(result.body.orders.length,1);
+ assert.ok(calls[1].url.includes("customer_id=eq."+id));
+ assert.equal(calls[1].options.headers.Authorization,"Bearer "+"x".repeat(25));
+ const bad=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"x"},env,fetcher);
+ assert.equal(bad.status,400);
 });
