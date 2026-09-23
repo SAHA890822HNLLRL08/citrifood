@@ -3,6 +3,7 @@ import {useEffect,useState} from "react";
 import {loadMvp,resolveDeliveryIssue,subscribeOrders,updateOrder} from "../../../lib/mvp-store.js";
 import "./orders.css";
 import {ordersToCsv} from "../../../lib/order-export.js";
+import {orderMessages} from "../../../lib/order-chat.js";
 
 const seed=[
  {id:"CF-DEMO-3",restaurant:"Tacos El Centro",customer:"María (ejemplo)",courier:"Sin asignar",status:"Preparando",payment:"Efectivo",total:245},
@@ -44,7 +45,7 @@ export default function Pedidos(){
       <p><b>Envío:</b> $ {x.deliveryFee??"No registrado"}</p>
       {x.deliveryIssue&&<div className="opsIssue"><h3>⚠️ Incidencia de entrega</h3><p>{x.deliveryIssue.description}</p><small>Reportada: {new Date(x.deliveryIssue.reportedAt).toLocaleString("es-MX")}</small>{x.deliveryIssue.resolvedAt?<p>Atendida: {new Date(x.deliveryIssue.resolvedAt).toLocaleString("es-MX")}</p>:<button type="button" onClick={()=>resolveDeliveryIssue(x.id)}>Marcar como atendida (demo)</button>}</div>}{x.deliveryIssueHistory?.length>1&&<details className="opsIssueHistory"><summary>Incidencias anteriores ({x.deliveryIssueHistory.length-1})</summary>{x.deliveryIssueHistory.slice(0,-1).map((issue,i)=><p key={i}>{issue.description} · {issue.resolvedAt?"Atendida":"Pendiente"}</p>)}</details>}<h3>Productos</h3>
       <ul>{(Array.isArray(x.items)?x.items:[]).map((item,i)=><li key={i}>{item.qty} × {item.name} · $ {(item.price*item.qty).toFixed(2)}</li>)}</ul>
-      <h3>Movimientos</h3>
+      <details className="opsChatEvidence"><summary>💬 Chat del pedido · evidencia temporal ({orderMessages(x).length} mensajes)</summary><p>Los mensajes se conservan hasta 15 días desde su envío en este navegador de prueba.</p>{orderMessages(x).length===0?<p>No hay mensajes vigentes.</p>:orderMessages(x).map(m=><article key={m.id}><b>{m.role}</b><p>{m.body}</p><small>{new Date(m.at).toLocaleString("es-MX")}</small></article>)}</details><h3>Movimientos</h3>
       <ol>{(x.statusHistory||[]).map((event,i)=><li key={i}>{event.status} · {new Date(event.at).toLocaleString("es-MX")}</li>)}</ol>
      </>}
     </div>}
