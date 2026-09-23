@@ -37,3 +37,9 @@ No hay backend, autenticación real, cobros, notificaciones push, GPS ni sincron
 5. Antes de lanzar: pruebas con dos teléfonos, acceso ajeno denegado, intento de llamar tras entrega denegado, reconexión, abuso/bloqueo y consentimiento de micrófono.
 
 La detección de teléfonos y enlaces del chat actual es **una protección parcial de demostración**, no anonimización garantizada. Debe reforzarse en el servidor y evaluarse frente a formatos alternativos y capturas de pantalla.
+
+## Retención del chat para evidencias — 15 días
+- Regla acordada: cada mensaje conserva su fecha de envío y vence exactamente **15 × 24 horas** después. El historial del pedido y las incidencias no se eliminan con el chat.
+- En el prototipo, los mensajes caducados se eliminan de `localStorage` al abrir/consultar/guardar datos de pedidos; si nadie vuelve a abrir la aplicación, no hay proceso en segundo plano que borre datos del dispositivo al instante. El almacenamiento del navegador no es evidencia inalterable ni respaldo confiable.
+- Operaciones puede consultar el chat vigente en el detalle del pedido, incluso si ya fue entregado. La exportación CSV de pedidos no incluye el contenido del chat.
+- Para producción, la eliminación debe ejecutarse **en el servidor mediante tarea programada** y también filtrarse en cada consulta; definir copias de seguridad, solicitudes legales y política de privacidad antes de prometer borrado irreversible. Solo cuentas autorizadas podrán consultar evidencia; registrar quién accede y cuándo.
