@@ -1,4 +1,4 @@
-import {supabaseConfig} from "../../../lib/deployment-readiness.js";
+import {supabaseConfig} from "../../../../lib/deployment-readiness.js";
 export const dynamic="force-dynamic";
 const headers={"Cache-Control":"no-store"};
 export async function POST(request){
