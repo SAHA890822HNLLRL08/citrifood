@@ -28,3 +28,12 @@ No hay backend, autenticación real, cobros, notificaciones push, GPS ni sincron
 - Para llamadas reales, elegir **voz por internet dentro de la app (VoIP/WebRTC con proveedor)** o **número intermediario temporal (proxy de llamadas)**. No inventar números ni usar el teléfono personal como identificador público. La telefonía intermediada requiere números contratados, infraestructura, costos, reglas de expiración y verificación de disponibilidad en México.
 - Las credenciales del proveedor, números reales y relación pedido-usuario deben quedarse en el servidor. El servidor debe autorizar quién puede contactar a quién y durante cuánto tiempo; limitar abuso y registrar eventos mínimos, sin grabar contenido por defecto.
 - Un mensaje puede contener un número escrito voluntariamente por el usuario: no prometer anonimato absoluto sin controles adicionales y revisión de privacidad.
+
+### Flujo de contacto para el piloto
+1. Un pedido entra en «En entrega» y tiene repartidor asignado. El servidor autoriza al cliente dueño del pedido y al repartidor asignado, sin confiar en un rol enviado desde el navegador.
+2. Se habilita chat privado solo durante la entrega; se cierra al entregar, rechazar o cancelar. Mensajes y metadatos se guardan en backend con política de retención definida.
+3. Si el cliente toca «Llamar dentro de CitriFood», el servidor entrega credenciales efímeras de una sesión de voz únicamente a esas dos cuentas. Ningún número personal debe aparecer en payloads públicos, enlaces o logs de aplicación.
+4. Si no hay internet o la llamada falla, ofrecer «Reportar problema a soporte» dentro de la app. No publicar números personales como solución de emergencia.
+5. Antes de lanzar: pruebas con dos teléfonos, acceso ajeno denegado, intento de llamar tras entrega denegado, reconexión, abuso/bloqueo y consentimiento de micrófono.
+
+La detección de teléfonos y enlaces del chat actual es **una protección parcial de demostración**, no anonimización garantizada. Debe reforzarse en el servidor y evaluarse frente a formatos alternativos y capturas de pantalla.
