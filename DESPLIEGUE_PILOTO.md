@@ -5,9 +5,10 @@ El código está en la rama `develop`. **Una compilación verde no publica la we
 ## 1. Crear la base de datos
 1. Crear un proyecto Supabase administrado por el propietario de CitriFood.
 2. En **SQL Editor**, ejecutar en orden los archivos de `supabase/migrations/`, del `202609230001` al `202609230008`. Revisar cada resultado y detenerse ante cualquier error; no saltar migraciones.
-3. En **Authentication → Providers → Email**, habilitar el correo y configurar el envío de códigos OTP; comprobar el correo con una cuenta de prueba. La cuota de correo de prueba de Supabase puede ser limitada.
-4. Crear cuatro usuarios de prueba por correo (cliente, restaurante, Operaciones y repartidor). Identificar sus UUID desde **Authentication → Users**. No copiar tokens ni contraseñas al repositorio.
-5. Con la cuenta correcta ya verificada, ejecutar las asignaciones siguientes en SQL Editor, reemplazando cada marcador con el UUID auténtico:
+3. Ejecutar `supabase/VERIFY_PILOT.sql` en SQL Editor. Las ocho comprobaciones de objetos deben decir `OK` y las cinco tablas deben mostrar `rls_enabled = true`. Si no, detenerse y revisar la migración que falló.
+4. En **Authentication → Providers → Email**, habilitar el correo y configurar el envío de códigos OTP; comprobar el correo con una cuenta de prueba. La cuota de correo de prueba de Supabase puede ser limitada.
+5. Crear cuatro usuarios de prueba por correo (cliente, restaurante, Operaciones y repartidor). Identificar sus UUID desde **Authentication → Users**. No copiar tokens ni contraseñas al repositorio.
+6. Con la cuenta correcta ya verificada, ejecutar las asignaciones siguientes en SQL Editor, reemplazando cada marcador con el UUID auténtico:
 ```sql
 insert into public.cf_restaurant_members(user_id,restaurant_name)
 values ('<UUID_RESTAURANTE>', 'Restaurante de prueba');
