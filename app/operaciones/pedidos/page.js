@@ -16,6 +16,7 @@ export default function Pedidos(){
  const[actual,setActual]=useState([]);
  const[expanded,setExpanded]=useState(null);const[issuesOnly,setIssuesOnly]=useState(false);
  useEffect(()=>{const refresh=()=>setActual(loadMvp().orders);refresh();return subscribeOrders(refresh)},[]);
+ useEffect(()=>{const id=new URLSearchParams(window.location.search).get("order");if(id){setQuery(id);setExpanded(id)}},[]);
  const downloadCsv=()=>{const content=ordersToCsv(rows.filter(o=>!o.id.startsWith("CF-DEMO-")));const blob=new Blob([content],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="citrifood-pedidos-demo-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  const all=[...actual,...seed];
  const search=query.trim().toLocaleLowerCase("es-MX");
