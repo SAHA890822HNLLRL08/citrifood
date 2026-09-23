@@ -31,9 +31,9 @@ La clave `SUPABASE_SERVICE_ROLE_KEY` **no es necesaria para este recorrido**; no
 ## 3. Comprobar que el despliegue responde
 Desde una terminal con Node 22+:
 ```sh
-npm run smoke:pilot -- https://<dominio-publicado>
+npm run smoke:pilot -- https://<dominio-publicado> --require-db
 ```
-Esta prueba confirma que el servidor responde y que los endpoints privados rechazan solicitudes anónimas; muestra si la conexión a Supabase es alcanzable. **No comprueba migraciones, permisos de usuarios autenticados ni una entrega real.**
+Esta prueba confirma que la pantalla /piloto y el servidor responden, que los endpoints privados rechazan solicitudes anónimas y, con --require-db, exige que Supabase esté configurado y su servicio de autenticación sea alcanzable. **No comprueba migraciones, permisos de usuarios autenticados ni una entrega real.**
 
 ## 4. Prueba entre celulares
 Abrir `https://<dominio-publicado>/piloto` en los celulares y entrar cada uno con su correo de prueba:
