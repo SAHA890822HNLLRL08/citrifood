@@ -21,3 +21,10 @@ En **dos dispositivos diferentes**: cliente crea pedido → restaurante lo acept
 
 ## Lo que todavía NO hace el MVP
 No hay backend, autenticación real, cobros, notificaciones push, GPS ni sincronización entre dispositivos. Los datos viven en almacenamiento local y pueden perderse. No captar pedidos ni información personal real con este prototipo.
+
+## Privacidad en llamadas y mensajes (requisito de lanzamiento)
+- Cliente y repartidor **no deben recibir el teléfono personal de la otra parte** mediante interfaz, API, CSV ni enlaces `tel:`/WhatsApp. Limitar la comunicación al pedido activo y a los participantes autenticados.
+- El MVP tiene **mensajería ilustrativa dentro del mismo navegador**, sin números visibles en la interfaz. No es chat entre dispositivos ni llamada real.
+- Para llamadas reales, elegir **voz por internet dentro de la app (VoIP/WebRTC con proveedor)** o **número intermediario temporal (proxy de llamadas)**. No inventar números ni usar el teléfono personal como identificador público. La telefonía intermediada requiere números contratados, infraestructura, costos, reglas de expiración y verificación de disponibilidad en México.
+- Las credenciales del proveedor, números reales y relación pedido-usuario deben quedarse en el servidor. El servidor debe autorizar quién puede contactar a quién y durante cuánto tiempo; limitar abuso y registrar eventos mínimos, sin grabar contenido por defecto.
+- Un mensaje puede contener un número escrito voluntariamente por el usuario: no prometer anonimato absoluto sin controles adicionales y revisión de privacidad.
