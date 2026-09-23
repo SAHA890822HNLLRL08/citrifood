@@ -93,3 +93,28 @@ test("shared orders require verified user token and scope database queries",asyn
  const bad=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"x"},env,fetcher);
  assert.equal(bad.status,400);
 });
+
+test("shared order payload rejects forged prices and never trusts customer ID from browser",()=>{
+ const id="123e4567-e89b-42d3-a456-426614174000";
+ const order={restaurant:"Tacos",address:"Centro Montemorelos",items:[{name:"Taco",qty:2,price:75}],deliveryFee:25,total:175,customer_id:"someone-else",paymentMethod:"Tarjeta"};
+ const payload=customerOrderPayload(order,id);
+ assert.equal(payload.customer_id,id);
+ assert.equal(payload.total_cents,17500);
+ assert.equal(payload.payment_method,"Efectivo (prueba)");
+ assert.equal(customerOrderPayload({...order,total:1},id),null);
+ assert.equal(customerOrderPayload({...order,items:[{name:"Taco",qty:2,price:-1}]},id),null);
+ assert.equal(validAccessToken("token"),false);
+});
+test("shared orders require valid authenticated session and pass user token, not service key",async()=>{
+ const id="123e4567-e89b-42d3-a456-426614174000",token="abcdefghijklmnopqrstuvwxyz123456";
+ const env={SUPABASE_URL:"https://demo.supabase.co",SUPABASE_ANON_KEY:"public-key",SUPABASE_SERVICE_ROLE_KEY:"private-key"};
+ const requests=[];
+ const fetcher=async(url,options)=>{requests.push({url,options});return url.endsWith("/auth/v1/user")?{ok:true,json:async()=>({id})}:{ok:true,json:async()=>([{id:"order-one"}])}};
+ assert.equal((await customerOrdersRequest("GET","",null,env,fetcher)).status,401);
+ const result=await customerOrdersRequest("GET",token,null,env,fetcher);
+ assert.equal(result.status,200);
+ assert.equal(requests.length,2);
+ assert.match(requests[1].url,/customer_id=eq\\.123e4567/);
+ assert.equal(requests[1].options.headers.Authorization,"Bearer "+token);
+ assert.equal(JSON.stringify(requests).includes("private-key"),false);
+});
