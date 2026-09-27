@@ -8,6 +8,7 @@ export async function GET(){
   crossDeviceOrders:false,
   databaseConfigured:connection.databaseConfigured,
   databaseReachable:connection.databaseReachable,
+  orderSchemaReachable:Boolean(connection.schemaReachable),
   // Reachable auth does not mean the schema, roles, orders or chat are ready.
   readyForRealOrders:false,
   message:"MVP de demostración: sin pedidos sincronizados, pagos ni cuentas reales."
