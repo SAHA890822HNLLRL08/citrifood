@@ -12,3 +12,6 @@ test("Google Routes adapter returns normalized motorcycle route",async()=>{
 });
 test("Google Routes adapter requires protected API key",async()=>{await assert.rejects(()=>computeGoogleRoute({origin:{lat:1,lng:1},destination:{lat:2,lng:2}}),/API key missing/)});
 test("Google Routes adapter fails safely when no route exists",async()=>{const fetchImpl=async()=>({ok:true,json:async()=>({routes:[]})});await assert.rejects(()=>computeGoogleRoute({origin:{lat:1,lng:1},destination:{lat:2,lng:2},apiKey:"test",fetchImpl}),/no route/)});
+
+import {calculateOrderEconomics} from "../lib/finance.js";
+test("real route distance feeds delivery economics",()=>{const route={distanceKm:7.3,durationMinutes:18};const x=calculateOrderEconomics({foodSubtotal:300,distanceKm:route.distanceKm,courierOrderNumber:1});assert.equal(x.extraKm,2.3);assert.equal(x.deliveryFee,65.1);assert.equal(x.courierEarning,36.5);assert.equal(x.customerTotal,370.1)});
