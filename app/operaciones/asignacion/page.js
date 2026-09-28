@@ -3,15 +3,11 @@ import "./dispatch.css";
 import {useEffect,useMemo,useState} from "react";
 import {dispatchDecision} from "../../../lib/dispatch";
 import {assignCourierToOrder,loadMvp,recordDispatchOffer,resolveDispatchOffer,subscribeOrders} from "../../../lib/mvp-store.js";
-const seed=[
-{id:"CF-R001",name:"Juan Pérez",distanceKm:1.0,online:true,available:true,endingShift:true,status:"Terminando jornada",activeOrders:2,documentsApproved:true,suspended:false,onTimeRate:.79,completionRate:.91,cancelRate:.12,rating:4.2,validIncidents:2},
-{id:"CF-R002",name:"Pedro García",distanceKm:1.5,online:true,available:true,endingShift:false,status:"Disponible",activeOrders:0,documentsApproved:true,suspended:false,onTimeRate:.97,completionRate:.99,cancelRate:.01,rating:4.9,validIncidents:0,autoAccept:true},
-{id:"CF-R003",name:"Luis Torres",distanceKm:2.2,online:true,available:true,endingShift:false,status:"Disponible",activeOrders:0,documentsApproved:true,suspended:false,onTimeRate:.94,completionRate:.97,cancelRate:.03,rating:4.8,validIncidents:0},
-{id:"CF-R004",name:"Carlos Ruiz",distanceKm:.7,online:false,available:true,endingShift:false,status:"Desconectado",activeOrders:0,documentsApproved:true,suspended:false,onTimeRate:.98,completionRate:.99,cancelRate:0,rating:5,validIncidents:0}
-];
+import {loadCouriers,subscribeCouriers,updateCourier} from "../../../lib/courier-registry.js";
 const cashMethod=value=>String(value||"").toLowerCase().includes("efectivo")?"cash":"card";
 export default function Dispatch(){
- const[couriers]=useState(seed),[orders,setOrders]=useState([]),[selectedId,setSelectedId]=useState(null),[seconds,setSeconds]=useState(25),[notice,setNotice]=useState("");
+ const[couriers,setCouriers]=useState([]),[orders,setOrders]=useState([]),[selectedId,setSelectedId]=useState(null),[seconds,setSeconds]=useState(25),[notice,setNotice]=useState("");
+ useEffect(()=>{const refresh=()=>setCouriers(loadCouriers());refresh();return subscribeCouriers(refresh)},[]);
  useEffect(()=>{const refresh=()=>{const pending=loadMvp().orders.filter(o=>["Listo","Esperando repartidor"].includes(o.status)&&!o.courierId);setOrders(pending);setSelectedId(id=>pending.some(o=>o.id===id)?id:(pending[0]?.id||null))};refresh();return subscribeOrders(refresh)},[]);
  const order=orders.find(o=>o.id===selectedId)||null;
  const dispatchOrder=useMemo(()=>order?{paymentMethod:cashMethod(order.paymentMethod),totalCents:Math.round((Number(order.total)||0)*100),courierEarningCents:Math.round((Number(order.courierEarning)||0)*100),routeFitByCourier:{},extraPickupMinutes:0,extraDeliveryMinutes:0}:null,[order]);
@@ -19,7 +15,7 @@ export default function Dispatch(){
  const ranked=decision.selected?[decision.selected,...decision.alternates]:[];
  const offeredId=order?.dispatchOffer?.courierId||null;const offered=ranked.find(x=>x.id===offeredId)||null;
  const offerTop=()=>{if(!order||!decision.selected)return;const expiresAt=new Date(Date.now()+decision.acceptanceSeconds*1000).toISOString();recordDispatchOffer(order.id,{courierId:decision.selected.id,courierName:decision.selected.name,score:decision.selected.dispatchScore,expiresAt});setSeconds(decision.acceptanceSeconds);setNotice("Oferta enviada a "+decision.selected.name+".")};
- const resolve=(outcome)=>{if(!order?.dispatchOffer)return;const courier={id:order.dispatchOffer.courierId,name:order.dispatchOffer.courierName};resolveDispatchOffer(order.id,outcome);if(outcome==="accepted"){assignCourierToOrder(order.id,{courierId:courier.id,courierName:courier.name});setNotice("Pedido asignado a "+courier.name+".")}else setNotice(outcome==="rejected"?"El repartidor rechazó. Puedes ofrecer al siguiente candidato.":"La oferta venció. Puedes continuar con el siguiente candidato.")};
+ const resolve=(outcome)=>{if(!order?.dispatchOffer)return;const courier={id:order.dispatchOffer.courierId,name:order.dispatchOffer.courierName};resolveDispatchOffer(order.id,outcome);if(outcome==="accepted"){assignCourierToOrder(order.id,{courierId:courier.id,courierName:courier.name});const current=loadCouriers().find(c=>c.id===courier.id);if(current)updateCourier(courier.id,{activeOrders:(current.activeOrders||0)+1,status:"En entrega"});setNotice("Pedido asignado a "+courier.name+".")}else setNotice(outcome==="rejected"?"El repartidor rechazó. Puedes ofrecer al siguiente candidato.":"La oferta venció. Puedes continuar con el siguiente candidato.")};
  useEffect(()=>{if(!order?.dispatchOffer?.expiresAt)return;const tick=()=>{const left=Math.max(0,Math.ceil((new Date(order.dispatchOffer.expiresAt).getTime()-Date.now())/1000));setSeconds(left);if(left===0)resolve("timeout")};tick();const timer=setInterval(tick,1000);return()=>clearInterval(timer)},[order?.id,order?.dispatchOffer?.expiresAt]);
  return <div className="dispatchPage"><header><div><b className="logo">Citri<span>Food</span></b><small>Asignación inteligente</small></div><a href="/operaciones">← Operaciones</a></header>
  <section className="dispatchHero"><div><small>PEDIDOS REALES DEL MVP PENDIENTES</small><h1>{order?.id||"Sin pedidos pendientes"}</h1><p>{order?order.restaurant+" → "+(order.address||"Cliente")+" · "+(Number(order.distanceKm)||0).toFixed(1)+" km":"Cuando un restaurante marque un pedido listo aparecerá aquí."}</p></div><div><b>{orders.length} por asignar</b><small>Solo compiten repartidores elegibles</small></div></section>
