@@ -1,0 +1,1 @@
+export default function manifest(){return {name:"CitriFood",short_name:"CitriFood",description:"Comida local y entregas CitriFood",start_url:"/",display:"standalone",background_color:"#f6f8f6",theme_color:"#1f9d55",orientation:"portrait",categories:["food","delivery"]}}
