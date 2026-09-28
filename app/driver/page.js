@@ -1,1 +1,54 @@
-"use client"; import{useState}from"react"; export default function Driver(){const[online,setOnline]=useState(false),[accepted,setAccepted]=useState(false);return <main className="driver"><header><div><b className="logo">Citri<span>Food</span></b><small>Repartidor</small></div><button className={online?"toggle on":"toggle"} onClick={()=>setOnline(!online)}>{online?"Conectado":"Desconectado"}</button></header><section className="driverHello"><p>Buenas tardes 👋</p><h1>¿Listo para repartir?</h1><div className="driverStats"><span><b>7</b>Pedidos hoy</span><span><b>$385</b>Ganado hoy</span><span><b>96%</b>Aceptación</span></div></section>{online?<section><h2>{accepted?"Entrega activa":"Pedido disponible"}</h2><article className="delivery"><span className="badge">{accepted?"EN CURSO":"NUEVO"}</span><h2>🍔 Burger House</h2><p>📍 Recoger en Centro, Montemorelos</p><hr/><p>🏠 Entregar a Mariana · 2.4 km</p><p><b>Ganancia estimada: $48</b></p><button className="primary" onClick={()=>setAccepted(true)}>{accepted?"Ver ruta":"Aceptar pedido"}</button></article></section>:<div className="offline"><div>🛵</div><h2>Estás desconectado</h2><p>Conéctate para recibir pedidos.</p></div>}</main>
+"use client";
+import { useState } from "react";
+
+export default function Driver() {
+  const [online, setOnline] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+
+  return (
+    <main className="driver">
+      <header>
+        <div>
+          <b className="logo">Citri<span>Food</span></b>
+          <small>Repartidor</small>
+        </div>
+        <button className={online ? "toggle on" : "toggle"} onClick={() => setOnline(!online)}>
+          {online ? "Conectado" : "Desconectado"}
+        </button>
+      </header>
+
+      <section className="driverHello">
+        <p>Buenas tardes 👋</p>
+        <h1>¿Listo para repartir?</h1>
+        <div className="driverStats">
+          <span><b>7</b>Pedidos hoy</span>
+          <span><b>$385</b>Ganado hoy</span>
+          <span><b>96%</b>Aceptación</span>
+        </div>
+      </section>
+
+      {online ? (
+        <section>
+          <h2>{accepted ? "Entrega activa" : "Pedido disponible"}</h2>
+          <article className="delivery">
+            <span className="badge">{accepted ? "EN CURSO" : "NUEVO"}</span>
+            <h2>🍔 Burger House</h2>
+            <p>📍 Recoger en Centro, Montemorelos</p>
+            <hr />
+            <p>🏠 Entregar a Mariana · 2.4 km</p>
+            <p><b>Ganancia estimada: $48</b></p>
+            <button className="primary" onClick={() => setAccepted(true)}>
+              {accepted ? "Ver ruta" : "Aceptar pedido"}
+            </button>
+          </article>
+        </section>
+      ) : (
+        <div className="offline">
+          <div>🛵</div>
+          <h2>Estás desconectado</h2>
+          <p>Conéctate para recibir pedidos.</p>
+        </div>
+      )}
+    </main>
+  );
+}
