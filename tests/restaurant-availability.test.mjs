@@ -34,6 +34,8 @@ test("invalid schedule values fall back safely",()=>{
  assert.equal(s.open,"09:00");assert.equal(s.close,"23:00");assert.deepEqual(s.days,[0,1,2,3,4,5,6]);
 });
 
+test("explicit Sunday-only schedule remains Sunday-only",()=>{assert.deepEqual(normalizeRestaurantSchedule({enabled:true,open:"18:00",close:"02:00",days:[0]}).days,[0])});
+
 test("overnight schedule uses the opening weekday after midnight",()=>{
  const sundayOnly={enabled:true,open:"18:00",close:"02:00",days:[0]};
  assert.equal(isWithinRestaurantSchedule(sundayOnly,{weekday:0,hour:23,minute:0}),true);
