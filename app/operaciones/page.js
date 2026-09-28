@@ -3,6 +3,7 @@ import "./operations.css";
 import {useEffect,useState} from "react";
 import {loadMvp,subscribeOrders} from "../../lib/mvp-store.js";
 import {loadCouriers,reactivateCourier,subscribeCouriers,suspendCourier} from "../../lib/courier-registry.js";
+import {courierDocumentAlerts} from "../../lib/courier-documents.js";
 
 const responseRate=x=>Math.round((((x.offers||0)-(x.unansweredOffers||0))/Math.max(x.offers||0,1))*100);
 
@@ -27,6 +28,7 @@ export default function Operations(){
  const refreshSelected=id=>setSelected(loadCouriers().find(c=>c.id===id)||null);
  const suspend=()=>{if(!selected||!suspensionReason.trim())return;suspendCourier(selected.id,{reason:suspensionReason.trim()});refreshSelected(selected.id);setSuspensionReason("")};
  const reactivate=()=>{if(!selected)return;reactivateCourier(selected.id);refreshSelected(selected.id)};
+ const documentAlerts=selected?.documents?courierDocumentAlerts(selected.documents):[];
 
  return <div className="ops">
   <aside>
@@ -66,7 +68,7 @@ export default function Operations(){
      <button className="x" onClick={()=>setSelected(null)}>×</button>
      <div className="avatar">👤</div><h2>{selected.name}</h2><p>{selected.id} · {selected.status||"Desconectado"}</p><hr/>
      <p><b>Teléfono:</b> {selected.phone||"—"}</p><p><b>Vehículo:</b> {selected.vehicle||"—"}</p>
-     <p><b>Documentos:</b> {selected.documentsApproved?"Verificados":"Pendientes"}</p><p><b>Pedidos activos:</b> {selected.activeOrders||0}</p>
+     <p><b>Documentos:</b> {selected.documentsApproved?"Verificados":"Pendientes"}</p>{documentAlerts.length>0&&<div className="actions"><b>⚠️ Atención documental</b>{documentAlerts.map(item=><span key={item.key}>{item.key==="identity"?"Identidad":item.key==="license"?"Licencia":"Vehículo"}: {item.state==="expired"?"Vencido":item.state==="expiring"?`Vence en ${item.daysLeft} día${item.daysLeft===1?"":"s"}`:item.state==="invalid"?"Fecha inválida":"Pendiente de verificar"}</span>)}</div>}<p><b>Pedidos activos:</b> {selected.activeOrders||0}</p>
      <p><b>Respuesta a ofertas:</b> {responseRate(selected)}%</p>
      {selected.status==="Terminando jornada"&&<div className="actions"><b>No asignar pedidos nuevos</b><span>Seguirá visible hasta terminar sus entregas activas.</span></div>}
      <div className="actions">
