@@ -33,3 +33,13 @@ test("invalid schedule values fall back safely",()=>{
  const s=normalizeRestaurantSchedule({enabled:true,open:"99:00",close:"x",days:[8,-1]});
  assert.equal(s.open,"09:00");assert.equal(s.close,"23:00");assert.deepEqual(s.days,[0,1,2,3,4,5,6]);
 });
+
+test("overnight schedule uses the opening weekday after midnight",()=>{
+ const sundayOnly={enabled:true,open:"18:00",close:"02:00",days:[0]};
+ const sundayLate=new Date(2026,8,27,23,0,0,0);
+ const mondayEarly=new Date(2026,8,28,1,0,0,0);
+ const mondayLate=new Date(2026,8,28,3,0,0,0);
+ assert.equal(isWithinRestaurantSchedule(sundayOnly,sundayLate),true);
+ assert.equal(isWithinRestaurantSchedule(sundayOnly,mondayEarly),true);
+ assert.equal(isWithinRestaurantSchedule(sundayOnly,mondayLate),false);
+});
