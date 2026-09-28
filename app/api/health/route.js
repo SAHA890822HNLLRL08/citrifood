@@ -2,15 +2,17 @@ import {checkSupabaseConnectivity} from "../../../lib/deployment-readiness.js";
 export const dynamic="force-dynamic";
 export async function GET(){
  const connection=await checkSupabaseConnectivity();
+ const crossDeviceOrders=Boolean(connection.databaseReachable&&connection.schemaReachable);
  return Response.json({
   application:"CitriFood",
-  mode:"demo-local",
-  crossDeviceOrders:false,
+  mode:crossDeviceOrders?"pilot-connected":"demo-local",
+  crossDeviceOrders,
   databaseConfigured:connection.databaseConfigured,
   databaseReachable:connection.databaseReachable,
   orderSchemaReachable:Boolean(connection.schemaReachable),
-  // Reachable auth does not mean the schema, roles, orders or chat are ready.
   readyForRealOrders:false,
-  message:"MVP de demostración: sin pedidos sincronizados, pagos ni cuentas reales."
+  message:crossDeviceOrders
+   ?"Piloto compartido disponible para cuentas autenticadas. Cobros reales siguen deshabilitados."
+   :"MVP de demostración local mientras se completa la conexión compartida."
  },{headers:{"Cache-Control":"no-store"}});
 }
