@@ -28,3 +28,14 @@ test("timeouts are recorded as a light response penalty",()=>{
  p=recordOfferOutcome(p,"timeout");
  assert.equal(p.offers,1);assert.equal(p.unansweredOffers,1);assert.equal(p.responseRate,0);
 });
+
+test("suspended courier is never eligible even when closest",()=>{
+ const blocked={...base,id:"blocked",distanceKm:.1,suspended:true};
+ const eligible={...base,id:"eligible",distanceKm:2};
+ assert.equal(dispatchDecision([blocked,eligible],{}).selected.id,"eligible");
+});
+test("courier with pending documents is never eligible",()=>{
+ const pending={...base,id:"pending",documentsApproved:false,distanceKm:.1};
+ const eligible={...base,id:"eligible",distanceKm:2};
+ assert.equal(dispatchDecision([pending,eligible],{}).selected.id,"eligible");
+});
