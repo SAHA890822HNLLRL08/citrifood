@@ -8,3 +8,5 @@
 .restaurantDeliveryInfo{background:#f4f8f5;border-radius:10px;padding:9px 12px;margin:10px 0}.restaurantDeliveryInfo p{margin:6px 0;font-size:13px;line-height:1.5}
 
 .restaurantNotice{margin:0 0 18px;padding:14px 16px;border:1px solid #f0c36b;background:#fff8e7;border-radius:12px;font-weight:700;line-height:1.45}.restaurantOrders>article small{display:block;margin-top:5px;color:#667268}
+
+.restaurantPayout{margin:0 0 22px;padding:18px;border:1px solid #dce9de;border-radius:16px;background:#f7fbf8}.restaurantPayout h2{margin:4px 0 12px;font-size:30px}.restaurantPayout>small{display:block;color:#667268;line-height:1.45;margin-top:12px}.restaurantPayoutBreakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.restaurantPayoutBreakdown span{background:white;border-radius:10px;padding:10px;font-size:13px}.restaurantPayoutBreakdown b{display:block;margin-top:5px}@media(max-width:600px){.restaurantPayoutBreakdown{grid-template-columns:1fr}}
