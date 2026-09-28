@@ -39,3 +39,11 @@ test("courier with pending documents is never eligible",()=>{
  const eligible={...base,id:"eligible",distanceKm:2};
  assert.equal(dispatchDecision([pending,eligible],{}).selected.id,"eligible");
 });
+
+test("expired detailed documents block courier dispatch",()=>{
+ const expired={...base,id:"expired",documentsApproved:true,documents:{
+  identity:{verified:true},license:{verified:true,expiresAt:"2020-01-01T00:00:00Z"},vehicle:{verified:true}
+ }};
+ const eligible={...base,id:"eligible",distanceKm:2};
+ assert.equal(dispatchDecision([expired,eligible],{}).selected.id,"eligible");
+});
