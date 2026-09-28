@@ -1,0 +1,5 @@
+import test from "node:test";import assert from "node:assert/strict";
+import {requestDeliveryRoute,routeQuoteState} from "../lib/route-client.js";
+test("client route bridge returns server quote",async()=>{let req;const fetchImpl=async(url,options)=>{req={url,options};return {ok:true,json:async()=>({distanceKm:7.3,durationMinutes:18})}};const route=await requestDeliveryRoute({origin:{lat:1,lng:2},destination:{lat:3,lng:4},fetchImpl});assert.equal(req.url,"/api/route");assert.equal(route.distanceKm,7.3);assert.deepEqual(routeQuoteState(route),{ready:true,distanceKm:7.3,durationMinutes:18})});
+test("route quote is not ready without valid distance",()=>{assert.deepEqual(routeQuoteState(null),{ready:false,distanceKm:null,durationMinutes:null})});
+test("client route bridge surfaces server error",async()=>{const fetchImpl=async()=>({ok:false,json:async()=>({error:"Rutas no configuradas"})});await assert.rejects(()=>requestDeliveryRoute({origin:{lat:1,lng:2},destination:{lat:3,lng:4},fetchImpl}),/Rutas no configuradas/)});
