@@ -36,10 +36,7 @@ test("invalid schedule values fall back safely",()=>{
 
 test("overnight schedule uses the opening weekday after midnight",()=>{
  const sundayOnly={enabled:true,open:"18:00",close:"02:00",days:[0]};
- const sundayLate=new Date(2026,8,27,23,0,0,0);
- const mondayEarly=new Date(2026,8,28,1,0,0,0);
- const mondayLate=new Date(2026,8,28,3,0,0,0);
- assert.equal(isWithinRestaurantSchedule(sundayOnly,sundayLate),true);
- assert.equal(isWithinRestaurantSchedule(sundayOnly,mondayEarly),true);
- assert.equal(isWithinRestaurantSchedule(sundayOnly,mondayLate),false);
+ assert.equal(isWithinRestaurantSchedule(sundayOnly,{weekday:0,hour:23,minute:0}),true);
+ assert.equal(isWithinRestaurantSchedule(sundayOnly,{weekday:1,hour:1,minute:0}),true);
+ assert.equal(isWithinRestaurantSchedule(sundayOnly,{weekday:1,hour:3,minute:0}),false);
 });
