@@ -7,13 +7,17 @@ const names=["Tacos El Centro","Burger House","Pizza Norte","Sushi Mty"];
 const seed=[{id:"CF-DEMO-1",restaurant:"Tacos El Centro",customer:"María (ejemplo)",items:"3 tacos + refresco",total:245,status:"Nuevo",demo:true},{id:"CF-DEMO-2",restaurant:"Tacos El Centro",customer:"José (ejemplo)",items:"1 pirata + papa",total:210,status:"Preparando",demo:true}];
 export default function Restaurante(){
  const[restaurant,setRestaurant]=useState(names[0]);
- const[actual,setActual]=useState([]);\n const[notice,setNotice]=useState("");
+ const[actual,setActual]=useState([]);
+ const[notice,setNotice]=useState("");
  const[examples,setExamples]=useState(seed);
  const[promotions,setPromotions]=useState({});const[title,setTitle]=useState("");const[description,setDescription]=useState("");const[price,setPrice]=useState("");const[promoError,setPromoError]=useState("");
  useEffect(()=>{const refresh=()=>setActual(loadMvp().orders);refresh();return subscribeOrders(refresh)},[]);
  useEffect(()=>{const refresh=()=>setPromotions(loadPromotions());refresh();return subscribePromotions(refresh)},[]);
  const createPromo=e=>{e.preventDefault();try{addPromotion(restaurant,{title,description,price,emoji:"🍽️"});setTitle("");setDescription("");setPrice("");setPromoError("")}catch{setPromoError("Escribe un nombre y un precio válido mayor a cero.")}};
- const orders=[...actual.filter(o=>o.restaurant===restaurant),...examples.filter(o=>o.restaurant===restaurant)];\n const penaltyBalance=getRestaurantPenaltyBalance(restaurant);\n const paidSales=orders.filter(o=>!o.id.startsWith("CF-DEMO-")&&!["Nuevo","Rechazado","Cancelado"].includes(o.status)).reduce((s,o)=>s+(Number(o.total)||0),0);\n const cancelAccepted=o=>{if(o.id.startsWith("CF-DEMO-")){setExamples(v=>v.map(x=>x.id===o.id?{...x,status:"Rechazado"}:x));setNotice("Ejemplo: cancelación después de aceptar · penalización $20.");return}const updated=cancelAcceptedByRestaurant(o.id,"Producto agotado");if(updated)setNotice("Pedido cancelado. Se solicitó el reembolso al cliente y se cargó una penalización de $20 a la próxima venta.");};
+ const orders=[...actual.filter(o=>o.restaurant===restaurant),...examples.filter(o=>o.restaurant===restaurant)];
+ const penaltyBalance=getRestaurantPenaltyBalance(restaurant);
+ const paidSales=orders.filter(o=>!o.id.startsWith("CF-DEMO-")&&!["Nuevo","Rechazado","Cancelado"].includes(o.status)).reduce((s,o)=>s+(Number(o.total)||0),0);
+ const cancelAccepted=o=>{if(o.id.startsWith("CF-DEMO-")){setExamples(v=>v.map(x=>x.id===o.id?{...x,status:"Rechazado"}:x));setNotice("Ejemplo: cancelación después de aceptar · penalización $20.");return}const updated=cancelAcceptedByRestaurant(o.id,"Producto agotado");if(updated)setNotice("Pedido cancelado. Se solicitó el reembolso al cliente y se cargó una penalización de $20 a la próxima venta.");};
  const change=(o,status)=>{if(o.id.startsWith("CF-DEMO-"))setExamples(v=>v.map(x=>x.id===o.id?{...x,status}:x));else updateOrder(o.id,{status})};
  return <main className="restaurantDash"><header><div><b>Citri<span>Food</span></b><small>Portal del restaurante · Demostración</small></div><a href="/acceso">Cambiar perfil</a></header>
  <label className="restaurantPicker">Restaurante <select value={restaurant} onChange={e=>setRestaurant(e.target.value)}>{names.map(name=><option key={name} value={name}>{name}</option>)}</select></label>
