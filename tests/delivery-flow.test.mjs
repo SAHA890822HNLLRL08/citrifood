@@ -7,13 +7,13 @@ import {
 } from "../lib/delivery-flow.js";
 
 test("restaurant arrival requires close distance and usable GPS",()=>{
- assert.equal(canConfirmRestaurantArrival({distanceM:45,accuracyM:20}),true);
- assert.equal(canConfirmRestaurantArrival({distanceM:80,accuracyM:20}),false);
- assert.equal(canConfirmRestaurantArrival({distanceM:45,accuracyM:100}),false);
+ assert.equal(canConfirmRestaurantArrival({distanceM:45,gpsAccuracyM:20}),true);
+ assert.equal(canConfirmRestaurantArrival({distanceM:80,gpsAccuracyM:20}),false);
+ assert.equal(canConfirmRestaurantArrival({distanceM:45,gpsAccuracyM:100}),false);
 });
 test("courier can receive only after verified arrival and ready order",()=>{
- assert.equal(canReceiveOrder({arrived:true,restaurantReady:true}),true);
- assert.equal(canReceiveOrder({arrived:false,restaurantReady:true}),false);
+ assert.equal(canReceiveOrder({restaurantArrivalVerified:true,restaurantReady:true}),true);
+ assert.equal(canReceiveOrder({restaurantArrivalVerified:false,restaurantReady:true}),false);
 });
 test("customer approach and handoff use separate radiuses",()=>{
  assert.equal(isNearCustomer(95),true);
