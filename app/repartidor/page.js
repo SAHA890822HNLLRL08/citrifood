@@ -2,7 +2,7 @@
 import {useEffect,useState} from "react";
 import "./courier.css";
 import OrderChat from "../../components/order-chat.js";
-import {assignCourierToOrder,loadMvp,reportDeliveryIssue,resolveDispatchOffer,subscribeOrders,updateOrder} from "../../lib/mvp-store.js";
+import {assignCourierToOrder,confirmCourierPickup,loadMvp,reportDeliveryIssue,resolveDispatchOffer,subscribeOrders,updateOrder} from "../../lib/mvp-store.js";
 import {closeCourierDay} from "../../lib/finance.js";
 import {getBrowserPosition,publicCoordinates} from "../../lib/customer-location.js";
 import {haversineKm} from "../../lib/geo.js";
@@ -40,8 +40,7 @@ async function arriveRestaurant(order){
 }
 function confirmPickup(order){
  if(!order.arrivedRestaurantAt){setDeliveryNotice(v=>({...v,[order.id]:"Primero confirma que llegaste al restaurante."}));return}
- const at=new Date().toISOString();
- const updated=updateOrder(order.id,{status:"En entrega",pickedUpAt:at,deliveryEvents:[...(order.deliveryEvents||[]),{type:"courier_received_order",at}]});
+ const updated=confirmCourierPickup(order.id);
  if(updated)setDeliveryNotice(v=>({...v,[order.id]:"Pedido recibido. El cliente ya puede ver que vas en camino."}))
 }
 async function confirmDelivery(order){
