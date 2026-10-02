@@ -48,7 +48,7 @@ export default function Operations(){
    <section className="stats">
     <article><small>Pedidos de prueba</small><b>{orders.length}</b></article><article><small>Por aceptar</small><b>{orders.filter(o=>o.status==="Nuevo").length}</b></article>
     <article><small>En entrega</small><b>{orders.filter(o=>o.status==="En entrega").length}</b></article><article><small>Entregados</small><b>{orders.filter(o=>o.status==="Entregado").length}</b></article>
-    <article><small>⚠️ Incidencias pendientes</small><b>{orders.filter(o=>o.deliveryIssue&&!o.deliveryIssue.resolvedAt).length}</b><a href="/operaciones/pedidos">Atender →</a></article>
+    <article><small>⚠️ Incidencias pendientes</small><b>{orders.filter(o=>o.deliveryIssue&&!o.deliveryIssue.resolvedAt).length}</b><a href="/operaciones/pedidos">Atender →</a></article><article><small>🆘 Cliente sin respuesta</small><b>{orders.filter(o=>o.supportReview?.type==="customer_no_response"&&o.supportReview?.status==="Pendiente").length}</b><a href="/operaciones/pedidos">Revisar →</a></article>
    </section>
    <p><a href="/operaciones/pedidos">Abrir pedidos y asignaciones →</a> · <a href="/operaciones/reportes">Ver reporte por restaurante →</a></p>
    <section className="mapmock"><div className="maplabel"><b>Mapa operativo</b><small>GPS se comparte únicamente durante operación.</small></div><i className="pin p1">🛵</i><i className="pin p2">🛵</i><i className="pin p3">📦</i></section>
