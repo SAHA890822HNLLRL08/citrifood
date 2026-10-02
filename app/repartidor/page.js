@@ -60,6 +60,8 @@ async function arriveCustomer(order){
  }catch(error){setDeliveryNotice(v=>({...v,[order.id]:error.message||"No fue posible verificar la llegada al domicilio."}))}
 }
 async function confirmDelivery(order){
+ const currentOrder=loadMvp().orders.find(x=>x.id===order.id)||order;order=currentOrder;
+ if(order.status!=="En entrega"){setDeliveryNotice(v=>({...v,[order.id]:"Este pedido ya no está disponible para entrega."}));return}
  if(order.supportReview?.status==="Pendiente"){setDeliveryNotice(v=>({...v,[order.id]:"Este pedido está en revisión de Soporte y no puede entregarse hasta que se resuelva."}));return}
  if(!order.arrivedCustomerAt){setDeliveryNotice(v=>({...v,[order.id]:"Primero confirma tu llegada al domicilio."}));return}
  if(order.deliveryIssue&&!order.deliveryIssue.resolvedAt){setDeliveryNotice(v=>({...v,[order.id]:"Primero debe resolverse la incidencia."}));return}
