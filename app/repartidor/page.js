@@ -24,6 +24,7 @@ useEffect(()=>{if(draining&&inProgress===0){setOnline(false);setDraining(false);
 function accept(){if(!courier||!liveOffer||draining||!online||assigned.length>=4)return;const assignedOrder=assignCourierToOrder(liveOffer.id,{courierId:courier.id,courierName:courier.name,courierState:courier});if(!assignedOrder){resolveDispatchOffer(liveOffer.id,"timeout");setNotice("La oferta ya no puede asignarse. Actualizando disponibilidad.");setSeconds(25);return}resolveDispatchOffer(liveOffer.id,"accepted");updateCourier(courier.id,{activeOrders:Math.min(4,(courier.activeOrders||assigned.length)+1),status:"En entrega",offers:(courier.offers||0)+1});setNotice("Pedido "+liveOffer.id+" aceptado y asignado.");setSeconds(25)}
 function reject(){if(!courier||!liveOffer)return;resolveDispatchOffer(liveOffer.id,"rejected");updateCourier(courier.id,{offers:(courier.offers||0)+1});setNotice("Pedido rechazado. Se registra como respuesta, no como cancelación.");setSeconds(25)}
 async function arriveRestaurant(order){
+ const current=loadMvp().orders.find(x=>x.id===order.id)||order;if(current.arrivedRestaurantAt){setDeliveryNotice(v=>({...v,[order.id]:"La llegada al restaurante ya fue registrada."}));return}if(current.status!=="Esperando repartidor"){setDeliveryNotice(v=>({...v,[order.id]:"Este pedido ya no está esperando recolección."}));return}
  const target=loadRestaurantLocation(order.restaurant);
  if(!restaurantLocationReady(target)){setDeliveryNotice(v=>({...v,[order.id]:"El restaurante debe verificar su ubicación antes de validar tu llegada."}));return}
  try{
@@ -44,6 +45,8 @@ function confirmPickup(order){
  if(updated)setDeliveryNotice(v=>({...v,[order.id]:"Pedido recibido. El cliente ya puede ver que vas en camino."}))
 }
 async function arriveCustomer(order){
+ const current=loadMvp().orders.find(x=>x.id===order.id)||order;if(current.arrivedCustomerAt){setDeliveryNotice(v=>({...v,[order.id]:"La llegada al domicilio ya fue registrada."}));return}if(current.status!=="En entrega"||current.supportReview?.status==="Pendiente"){setDeliveryNotice(v=>({...v,[order.id]:"Este pedido no está disponible para registrar llegada."}));return}
+ order=current;
  if(!order.customerCoordinates){setDeliveryNotice(v=>({...v,[order.id]:"Este pedido no tiene ubicación GPS del cliente. Operaciones debe revisarlo."}));return}
  try{
   setDeliveryNotice(v=>({...v,[order.id]:"Verificando llegada al domicilio…"}));
@@ -84,6 +87,7 @@ function recordNoResponse(order,kind){
  setDeliveryNotice(v=>({...v,[order.id]:kind==="message"?"Mensaje al cliente registrado.":"Llamada al cliente registrada."}));
 }
 function releaseNoResponse(order){
+ const latest=loadMvp().orders.find(x=>x.id===order.id)||order;order=latest;
  if(order.supportReview?.status==="Pendiente"){setDeliveryNotice(v=>({...v,[order.id]:"Este pedido ya está en revisión de Soporte."}));return}
  const current=loadMvp().orders.find(x=>x.id===order.id)||order;
  const nr=current.noResponse;
