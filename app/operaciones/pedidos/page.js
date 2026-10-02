@@ -35,7 +35,7 @@ export default function Pedidos(){
    {rows.map(x=><article key={x.id}>
     <div><small>{x.id}{x.id.startsWith("CF-DEMO-")?" · EJEMPLO":""}</small><h2>{x.restaurant}</h2><p>{x.customer} · {x.paymentMethod||x.payment} · $ {x.total}</p></div>
     <div className="orderActions"><strong>{x.status}</strong>{x.deliveryIssue&&!x.deliveryIssue.resolvedAt&&<b className="issueBadge">⚠️ Incidencia pendiente</b>}{x.supportReview?.status==="Pendiente"&&<b className="issueBadge">🆘 Soporte pendiente</b>}<small>{x.courier||"Sin asignar"}</small>
-     {!x.id.startsWith("CF-DEMO-")&&["Listo","Esperando repartidor"].includes(x.status)&&<button type="button" className="assignButton" onClick={()=>updateOrder(x.id,{status:"En entrega",courier:"Juan Pérez (demo)"})}>Asignar a Juan (demo)</button>}
+     {!x.id.startsWith("CF-DEMO-")&&["Listo","Esperando repartidor"].includes(x.status)&&<small>Asignación gestionada por el flujo automático de repartidores.</small>}
      <button type="button" className="detailButton" aria-expanded={expanded===x.id} onClick={()=>setExpanded(v=>v===x.id?null:x.id)}>{expanded===x.id?"Ocultar detalle":"Ver detalle"}</button>
     </div>
     {expanded===x.id&&<div className="orderDetails">
