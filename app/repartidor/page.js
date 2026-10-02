@@ -70,7 +70,7 @@ async function confirmDelivery(order){
   if(distanceM>10){setDeliveryNotice(v=>({...v,[order.id]:"Aún estás a "+Math.round(distanceM)+" m del punto de entrega. Acércate a 10 m o menos."}));return}
   const deliveredAt=new Date().toISOString();
   const updated=updateOrder(order.id,{status:"Entregado",deliveredAt,deliveryVerified:{distanceM:Math.round(distanceM),accuracyM:Math.round(point.accuracyM),pinVerified:true,verifiedAt:deliveredAt},deliveryEvents:[...(order.deliveryEvents||[]),{type:"delivery_verified",at:deliveredAt,distanceM:Math.round(distanceM),pinVerified:true}]});
-  if(updated){const current=loadCouriers().find(x=>x.id===courierId);if(current)updateCourier(courierId,{activeOrders:Math.max(0,(current.activeOrders||1)-1),status:"Disponible"});setDeliveryNotice(v=>({...v,[order.id]:"Entrega confirmada con GPS y PIN."}))}
+  if(updated){const current=loadCouriers().find(x=>x.id===courierId);if(current){const remaining=Math.max(0,(current.activeOrders||1)-1);if(current.endingShift&&remaining===0)updateCourier(courierId,{activeOrders:0,online:false,available:true,endingShift:false,status:"Desconectado"});else updateCourier(courierId,{activeOrders:remaining,status:current.endingShift?"Terminando jornada":remaining>0?"En entrega":"Disponible"})}setDeliveryNotice(v=>({...v,[order.id]:"Entrega confirmada con GPS y PIN."}))}
  }catch(error){setDeliveryNotice(v=>({...v,[order.id]:error.message||"No fue posible verificar la ubicación."}))}
 }
 function recordNoResponse(order,kind){
