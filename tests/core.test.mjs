@@ -92,6 +92,8 @@ test("shared orders require verified user token and scope database queries",asyn
  assert.equal(calls[1].options.headers.Authorization,"Bearer "+"x".repeat(25));
  const bad=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"x"},env,fetcher);
  assert.equal(bad.status,400);
+ const forgedPayment=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:1,price:100}],deliveryFee:20,total:120,paymentMethod:"Transferencia",customerCoordinates:{lat:25.1,lng:-99.8}},env,fetcher);
+ assert.equal(forgedPayment.status,400);
 });
 
 test("shared order payload rejects forged prices and never trusts customer ID from browser",()=>{
