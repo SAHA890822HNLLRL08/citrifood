@@ -1,7 +1,7 @@
 import {checkOrderSchemaConnectivity} from "../../../lib/deployment-readiness.js";
 export const dynamic="force-dynamic";
 export async function GET(){
- const connection=await checkSupabaseConnectivity();
+ const connection=await checkOrderSchemaConnectivity();
  const crossDeviceOrders=Boolean(connection.databaseReachable&&connection.schemaReachable);
  return Response.json({
   application:"CitriFood",
