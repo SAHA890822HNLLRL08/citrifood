@@ -10,6 +10,7 @@ import {canMessageOrder,containsContactDetails,orderMessages,sendOrderMessage} f
 import {CHAT_RETENTION_MS,pruneOrderChats,retainedMessages} from "../lib/chat-retention.js";
 import {checkSupabaseConnectivity,deploymentReadiness,supabaseConfig} from "../lib/deployment-readiness.js";
 import {customerOrderPayload,customerOrdersRequest,validAccessToken} from "../lib/shared-orders.js";
+import {normalizeCashExposure} from "../lib/courier-shared-orders.js";
 import {addOrder,cancelOrder,canTransitionOrder,createOrder,clearMvp,expireStoredChats,getOrder,loadMvp,reportDeliveryIssue,resolveDeliveryIssue,updateOrder} from "../lib/mvp-store.js";
 import {addPromotion,initialPromotions,loadPromotions,promotionsFor,setPromotionActive,setPromotionSponsored,sponsoredPromotions} from "../lib/promotions.js";
 const courier=(id,distanceKm,extra={})=>({id,distanceKm,online:true,available:true,documentsApproved:true,suspended:false,onTimeRate:.98,completionRate:.99,cancelRate:.01,rating:4.9,validIncidents:0,...extra});
@@ -120,3 +121,6 @@ test("shared orders require valid authenticated session and pass user token, not
  assert.equal(requests[1].options.headers.Authorization,"Bearer "+token);
  assert.equal(JSON.stringify(requests).includes("private-key"),false);
 });
+
+
+test("shared courier cash exposure normalizes debt committed and available values",()=>{assert.deepEqual(normalizeCashExposure([{cash_debt_cents:30000,committed_cash_cents:35000,available_cash_cents:15000}]),{cashDebtCents:30000,committedCashCents:35000,availableCashCents:15000});assert.deepEqual(normalizeCashExposure([]),{cashDebtCents:0,committedCashCents:0,availableCashCents:0})});
