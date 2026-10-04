@@ -114,7 +114,7 @@ test("shared orders require valid authenticated session and pass user token, not
  const result=await customerOrdersRequest("GET",token,null,env,fetcher);
  assert.equal(result.status,200);
  assert.equal(requests.length,2);
- assert.ok(requests[1].url.includes("customer_id=eq."+id));
+ assert.ok(requests[1].url.includes("/rest/v1/rpc/cf_customer_orders"));
  assert.equal(requests[1].options.headers.Authorization,"Bearer "+token);
  assert.equal(JSON.stringify(requests).includes("private-key"),false);
 });
