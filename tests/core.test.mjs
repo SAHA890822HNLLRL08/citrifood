@@ -96,11 +96,11 @@ test("shared orders require verified user token and scope database queries",asyn
 
 test("shared order payload rejects forged prices and never trusts customer ID from browser",()=>{
  const id="123e4567-e89b-42d3-a456-426614174000";
- const order={restaurant:"Tacos",address:"Centro Montemorelos",items:[{name:"Taco",qty:2,price:75}],deliveryFee:25,total:175,customer_id:"someone-else",paymentMethod:"Tarjeta"};
+ const order={restaurant:"Tacos",address:"Centro Montemorelos",items:[{name:"Taco",qty:2,price:75}],deliveryFee:25,total:175,customer_id:"someone-else",paymentMethod:"Tarjeta (simulada)"};
  const payload=customerOrderPayload(order,id);
  assert.equal(payload.customer_id,id);
  assert.equal(payload.total_cents,17500);
- assert.equal(payload.payment_method,"Efectivo (prueba)");
+ assert.equal(payload.payment_method,"Tarjeta (simulada)");
  assert.equal(customerOrderPayload({...order,total:1},id),null);
  assert.equal(customerOrderPayload({...order,items:[{name:"Taco",qty:2,price:-1}]},id),null);
  assert.equal(validAccessToken("token"),false);
