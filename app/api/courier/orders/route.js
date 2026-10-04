@@ -9,13 +9,13 @@ export async function GET(request){
  const {config,userId}=auth;
  const options={headers:{apikey:config.anon,Authorization:"Bearer "+token,Accept:"application/json"},signal:AbortSignal.timeout(7000),cache:"no-store",redirect:"error"};
  try{
-  const member=await fetch(config.url+"/rest/v1/cf_courier_members?select=user_id,display_name,active&user_id=eq."+userId,options);
+  const member=await fetch(config.url+"/rest/v1/cf_courier_members?select=user_id,display_name,active,accepting_orders&user_id=eq."+userId,options);
   if(!member.ok)return Response.json({error:"No se pudo verificar tu cuenta de repartidor."},{status:503,headers});
   const roster=await member.json();
   if(!Array.isArray(roster)||!roster.some(x=>x.user_id===userId&&x.active===true))return Response.json({courier:null,orders:[],message:"Esta cuenta no está habilitada como repartidor de prueba."},{headers});
   const response=await fetch(config.url+"/rest/v1/rpc/cf_courier_orders",{...options,method:"POST",headers:{...options.headers,"Content-Type":"application/json"},body:"{}"});
   if(!response.ok)return Response.json({error:"No se pudieron consultar tus entregas."},{status:503,headers});
   const orders=await response.json();
-  return Response.json({courier:roster.find(x=>x.user_id===userId).display_name,orders:Array.isArray(orders)?orders:[]},{headers});
+  const current=roster.find(x=>x.user_id===userId);return Response.json({courier:current.display_name,acceptingOrders:current.accepting_orders!==false,orders:Array.isArray(orders)?orders:[]},{headers});
  }catch{return Response.json({error:"El servidor no está disponible."},{status:503,headers})}
 }
