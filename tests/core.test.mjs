@@ -88,7 +88,7 @@ test("shared orders require verified user token and scope database queries",asyn
  assert.equal(calls.length,0);
  const result=await customerOrdersRequest("GET","x".repeat(25),null,env,fetcher);
  assert.equal(result.status,200);assert.equal(result.body.orders.length,1);
- assert.ok(calls[1].url.includes("customer_id=eq."+id));
+ assert.ok(calls[1].url.includes("/rest/v1/rpc/cf_customer_orders"));
  assert.equal(calls[1].options.headers.Authorization,"Bearer "+"x".repeat(25));
  const bad=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"x"},env,fetcher);
  assert.equal(bad.status,400);
