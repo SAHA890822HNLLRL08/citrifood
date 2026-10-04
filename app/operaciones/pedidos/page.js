@@ -5,7 +5,8 @@ import {loadCouriers,updateCourier} from "../../../lib/courier-registry.js";
 import "./orders.css";
 import {ordersToCsv} from "../../../lib/order-export.js";
 import {orderMessages} from "../../../lib/order-chat.js";
-import {fetchOperationsSharedOrders} from "../../../lib/operations-shared-orders.js";
+import {assignOperationsSharedCourier,fetchOperationsSharedOrders} from "../../../lib/operations-shared-orders.js";
+import {fetchOperationsCashBalances} from "../../../lib/operations-shared-cash.js";
 
 const seed=[
  {id:"CF-DEMO-3",restaurant:"Tacos El Centro",customer:"María (ejemplo)",courier:"Sin asignar",status:"Preparando",payment:"Efectivo",total:245},
@@ -16,12 +17,13 @@ const statuses=["Todos","Nuevo","Preparando","Listo","Esperando repartidor","En 
 export default function Pedidos(){
  const[filter,setFilter]=useState("Todos");
  const[query,setQuery]=useState("");
- const[actual,setActual]=useState([]);const[shared,setShared]=useState([]);const[sharedNotice,setSharedNotice]=useState("");
+ const[actual,setActual]=useState([]);const[shared,setShared]=useState([]);const[sharedNotice,setSharedNotice]=useState("");const[sharedCouriers,setSharedCouriers]=useState([]);const[assignment,setAssignment]=useState({});
  const[expanded,setExpanded]=useState(null);const[issuesOnly,setIssuesOnly]=useState(false);const[supportOnly,setSupportOnly]=useState(false);
  useEffect(()=>{const refresh=()=>setActual(loadMvp().orders);refresh();return subscribeOrders(refresh)},[]);
- useEffect(()=>{let active=true;const sync=async()=>{const r=await fetchOperationsSharedOrders();if(!active)return;if(r.ok){setShared(r.orders);setSharedNotice("Pedidos compartidos sincronizados.")}else setSharedNotice(r.error||"No se pudieron consultar los pedidos compartidos.")};sync();const timer=setInterval(sync,10000);return()=>{active=false;clearInterval(timer)}},[]);
+ useEffect(()=>{let active=true;const sync=async()=>{const [r,cash]=await Promise.all([fetchOperationsSharedOrders(),fetchOperationsCashBalances()]);if(!active)return;if(r.ok){setShared(r.orders);setSharedNotice("Pedidos compartidos sincronizados.")}else setSharedNotice(r.error||"No se pudieron consultar los pedidos compartidos.");if(cash.ok)setSharedCouriers(cash.drivers)};sync();const timer=setInterval(sync,10000);return()=>{active=false;clearInterval(timer)}},[]);
  useEffect(()=>{const id=new URLSearchParams(window.location.search).get("order");if(id){setQuery(id);setExpanded(id)}},[]);
  const resolveNoResponse=(order)=>{const current=loadMvp().orders.find(x=>x.id===order.id);if(!current||current.status!=="En entrega"||current.supportReview?.type!=="customer_no_response"||current.supportReview?.status!=="Pendiente")return;order=current;const at=new Date().toISOString();const updated=updateOrder(order.id,{status:"Cancelado",supportReview:{...order.supportReview,status:"Atendido",resolution:"Cliente sin respuesta",resolvedAt:at},cancelledAt:at,cancelReason:"Cliente sin respuesta tras protocolo de contacto",deliveryEvents:[...(order.deliveryEvents||[]),{type:"support_no_response_closed",at}]});if(updated&&order.courierId){const driver=loadCouriers().find(x=>x.id===order.courierId);if(driver){const remaining=Math.max(0,(driver.activeOrders||1)-1);const finishing=driver.endingShift===true;if(finishing&&remaining===0)updateCourier(driver.id,{activeOrders:0,online:false,available:true,endingShift:false,status:"Desconectado"});else updateCourier(driver.id,{activeOrders:remaining,status:finishing?"Terminando jornada":remaining>0?"En entrega":"Disponible"})}}};
+ const assignShared=async(order)=>{const courierId=assignment[order.id];if(!courierId)return;setSharedNotice("Asignando repartidor…");const r=await assignOperationsSharedCourier(order.id,courierId);if(!r.ok){setSharedNotice(r.error||"No se pudo asignar el repartidor.");return}const refreshed=await fetchOperationsSharedOrders();if(refreshed.ok)setShared(refreshed.orders);setSharedNotice("Repartidor asignado. El pedido pasó a Esperando repartidor.")};
  const downloadCsv=()=>{const content=ordersToCsv(rows.filter(o=>!o.id.startsWith("CF-DEMO-")));const blob=new Blob([content],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="citrifood-pedidos-demo-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  const sharedRows=shared.map(o=>({...o,id:o.id,restaurant:o.restaurant_name,customer:"Cliente de cuenta",address:o.delivery_address,deliveryNotes:o.delivery_notes,paymentMethod:o.payment_method,total:Number(o.total_cents||0)/100,createdAt:o.created_at,courier:o.courier_id?"Asignado":"Sin asignar",shared:true}));
  const all=[...sharedRows,...actual,...seed];
@@ -40,7 +42,7 @@ export default function Pedidos(){
    {rows.map(x=><article key={x.id}>
     <div><small>{x.id}{x.id.startsWith("CF-DEMO-")?" · EJEMPLO":""}</small><h2>{x.restaurant}</h2><p>{x.customer} · {x.paymentMethod||x.payment} · $ {x.total}</p></div>
     <div className="orderActions"><strong>{x.status}</strong>{x.deliveryIssue&&!x.deliveryIssue.resolvedAt&&<b className="issueBadge">⚠️ Incidencia pendiente</b>}{x.supportReview?.status==="Pendiente"&&<b className="issueBadge">🆘 Soporte pendiente</b>}<small>{x.courier||"Sin asignar"}</small>
-     {!x.id.startsWith("CF-DEMO-")&&["Listo","Esperando repartidor"].includes(x.status)&&<small>Asignación gestionada por el flujo automático de repartidores.</small>}
+     {x.shared&&x.status==="Listo"&&<div><select value={assignment[x.id]||""} onChange={e=>setAssignment(v=>({...v,[x.id]:e.target.value}))}><option value="">Seleccionar repartidor</option>{sharedCouriers.filter(c=>c.active).map(c=>{const cash=x.payment_method==="Efectivo (simulado)",can=!cash||Number(c.available_cash_cents||0)>=Number(x.total_cents||0);return <option key={c.user_id} value={c.user_id} disabled={!can}>{c.display_name||"Repartidor"} · {cash?"$"+(Number(c.available_cash_cents||0)/100).toFixed(2)+" disponible":"tarjeta"}{can?"":" · SIN CUPO"}</option>})}</select><button type="button" disabled={!assignment[x.id]} onClick={()=>assignShared(x)}>Asignar</button></div>}{x.shared&&x.status==="Esperando repartidor"&&<small>Repartidor compartido asignado.</small>}{!x.shared&&!x.id.startsWith("CF-DEMO-")&&["Listo","Esperando repartidor"].includes(x.status)&&<small>Asignación gestionada por el flujo local de demostración.</small>}
      <button type="button" className="detailButton" aria-expanded={expanded===x.id} onClick={()=>setExpanded(v=>v===x.id?null:x.id)}>{expanded===x.id?"Ocultar detalle":"Ver detalle"}</button>
     </div>
     {expanded===x.id&&<div className="orderDetails">
