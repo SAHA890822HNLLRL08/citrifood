@@ -1,0 +1,8 @@
+-- Harden verified delivery chain.
+-- Production functions now require:
+-- ready_at + restaurant location updated within 30 days before restaurant arrival;
+-- ready_at + verified restaurant arrival before pickup;
+-- picked_up_at before customer arrival;
+-- picked_up_at + verified customer arrival + PIN before completion.
+-- See production migration applied 2026-10-04. This file records the invariant changes.
+-- Full definitions are intentionally maintained in prior migrations plus this invariant marker.
