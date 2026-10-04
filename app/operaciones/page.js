@@ -20,7 +20,7 @@ export default function Operations(){
  useEffect(()=>{const refresh=()=>setDrivers(loadCouriers());refresh();return subscribeCouriers(refresh)},[]);
  useEffect(()=>{refreshCash()},[]);
  async function refreshCash(){const r=await fetchOperationsCashBalances();if(r.ok){setSharedCash(r.drivers);setCashNotice("")}else setCashNotice(r.error||"No se pudo consultar la cartera compartida.")}
- async function registerCashPayment(driver){const pesos=Number(cashAmounts[driver.user_id]);if(!Number.isFinite(pesos)||pesos<=0){setCashNotice("Captura un depósito mayor a $0.");return}const cents=Math.round(pesos*100);const r=await recordOperationsCashPayment(driver.user_id,cents,"Depósito registrado desde Operaciones");if(!r.ok){setCashNotice(r.error||"No se pudo registrar el depósito.");return}setCashAmounts(v=>({...v,[driver.user_id]:""}));setCashNotice(`Depósito aplicado: $ ${(r.appliedCents/100).toFixed(2)}.`);await refreshCash()}
+ async function registerCashPayment(driver){const pesos=Number(cashAmounts[driver.user_id]);if(!Number.isFinite(pesos)||pesos<=0){setCashNotice("Captura un depósito mayor a $0.");return}const cents=Math.round(pesos*100);const r=await recordOperationsCashPayment(driver.user_id,cents,"Depósito registrado desde Operaciones");if(!r.ok){setCashNotice(r.error||"No se pudo registrar el depósito.");return}setCashAmounts(v=>({...v,[driver.user_id]:""}));await refreshCash();setCashNotice(`Depósito aplicado: $ ${(r.appliedCents/100).toFixed(2)}.`)}
 
  const visible=filter==="Todos"?drivers:drivers.filter(x=>x.status===filter);
  const counts={
