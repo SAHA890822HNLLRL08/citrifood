@@ -73,9 +73,9 @@ test("Supabase connectivity checks configured endpoint without leaking secrets",
 
 test("shared pilot order rejects forged totals and does not trust client ownership",()=>{
  const id="123e4567-e89b-42d3-a456-426614174000";
- const base={restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:2,price:100}],deliveryFee:20,total:220,paymentMethod:"Efectivo (simulado)",customer_id:"attacker",status:"Entregado",courier_id:"attacker"};
+ const base={restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:2,price:100}],deliveryFee:20,protectionFee:5,total:225,paymentMethod:"Efectivo (simulado)",customer_id:"attacker",status:"Entregado",courier_id:"attacker"};
  const good=customerOrderPayload(base,id);
- assert.equal(good.customer_id,id);assert.equal(good.total_cents,22000);assert.equal(good.status,undefined);assert.equal(good.courier_id,undefined);
+ assert.equal(good.customer_id,id);assert.equal(good.total_cents,22500);assert.equal(good.status,undefined);assert.equal(good.courier_id,undefined);
  assert.equal(customerOrderPayload({...base,total:1},id),null);
  assert.equal(customerOrderPayload({...base,items:[{name:"Pizza",qty:1,price:1.5}]},id),null);
  assert.equal(customerOrderPayload({...base,address:"x"},id),null);
@@ -93,18 +93,19 @@ test("shared orders require verified user token and scope database queries",asyn
  assert.equal(calls[1].options.headers.Authorization,"Bearer "+"x".repeat(25));
  const bad=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"x"},env,fetcher);
  assert.equal(bad.status,400);
- const forgedPayment=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:1,price:100}],deliveryFee:20,total:120,paymentMethod:"Transferencia",customerCoordinates:{lat:25.1,lng:-99.8}},env,fetcher);
+ const forgedPayment=await customerOrdersRequest("POST","x".repeat(25),{restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:1,price:100}],deliveryFee:20,protectionFee:5,total:125,paymentMethod:"Transferencia",customerCoordinates:{lat:25.1,lng:-99.8}},env,fetcher);
  assert.equal(forgedPayment.status,400);
 });
 
 test("shared order payload rejects forged prices and never trusts customer ID from browser",()=>{
  const id="123e4567-e89b-42d3-a456-426614174000";
- const order={restaurant:"Tacos",address:"Centro Montemorelos",items:[{name:"Taco",qty:2,price:75}],deliveryFee:25,total:175,customer_id:"someone-else",paymentMethod:"Tarjeta (simulada)"};
+ const order={restaurant:"Tacos",address:"Centro Montemorelos",items:[{name:"Taco",qty:2,price:75}],deliveryFee:25,protectionFee:5,total:180,customer_id:"someone-else",paymentMethod:"Tarjeta (simulada)"};
  const payload=customerOrderPayload(order,id);
  assert.equal(payload.customer_id,id);
- assert.equal(payload.total_cents,17500);
+ assert.equal(payload.total_cents,18000);
  assert.equal(payload.payment_method,"Tarjeta (simulada)");
  assert.equal(customerOrderPayload({...order,total:1},id),null);
+ assert.equal(customerOrderPayload({...order,protectionFee:0,total:175},id),null);
  assert.equal(customerOrderPayload({...order,items:[{name:"Taco",qty:2,price:-1}]},id),null);
  assert.equal(validAccessToken("token"),false);
 });
