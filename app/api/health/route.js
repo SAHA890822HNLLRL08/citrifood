@@ -1,4 +1,4 @@
-import {checkSupabaseConnectivity} from "../../../lib/deployment-readiness.js";
+import {checkOrderSchemaConnectivity} from "../../../lib/deployment-readiness.js";
 export const dynamic="force-dynamic";
 export async function GET(){
  const connection=await checkSupabaseConnectivity();
