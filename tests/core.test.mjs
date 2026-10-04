@@ -72,7 +72,7 @@ test("Supabase connectivity checks configured endpoint without leaking secrets",
 
 test("shared pilot order rejects forged totals and does not trust client ownership",()=>{
  const id="123e4567-e89b-42d3-a456-426614174000";
- const base={restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:2,price:100}],deliveryFee:20,total:220,customer_id:"attacker",status:"Entregado",courier_id:"attacker"};
+ const base={restaurant:"Pizza Norte",address:"Calle ficticia 123",items:[{name:"Pizza",qty:2,price:100}],deliveryFee:20,total:220,paymentMethod:"Efectivo (simulado)",customer_id:"attacker",status:"Entregado",courier_id:"attacker"};
  const good=customerOrderPayload(base,id);
  assert.equal(good.customer_id,id);assert.equal(good.total_cents,22000);assert.equal(good.status,undefined);assert.equal(good.courier_id,undefined);
  assert.equal(customerOrderPayload({...base,total:1},id),null);
