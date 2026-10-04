@@ -5,6 +5,7 @@ import {loadCouriers,updateCourier} from "../../../lib/courier-registry.js";
 import "./orders.css";
 import {ordersToCsv} from "../../../lib/order-export.js";
 import {orderMessages} from "../../../lib/order-chat.js";
+import {fetchOperationsSharedOrders} from "../../../lib/operations-shared-orders.js";
 
 const seed=[
  {id:"CF-DEMO-3",restaurant:"Tacos El Centro",customer:"María (ejemplo)",courier:"Sin asignar",status:"Preparando",payment:"Efectivo",total:245},
@@ -15,19 +16,21 @@ const statuses=["Todos","Nuevo","Preparando","Listo","Esperando repartidor","En 
 export default function Pedidos(){
  const[filter,setFilter]=useState("Todos");
  const[query,setQuery]=useState("");
- const[actual,setActual]=useState([]);
+ const[actual,setActual]=useState([]);const[shared,setShared]=useState([]);const[sharedNotice,setSharedNotice]=useState("");
  const[expanded,setExpanded]=useState(null);const[issuesOnly,setIssuesOnly]=useState(false);const[supportOnly,setSupportOnly]=useState(false);
  useEffect(()=>{const refresh=()=>setActual(loadMvp().orders);refresh();return subscribeOrders(refresh)},[]);
+ useEffect(()=>{let active=true;const sync=async()=>{const r=await fetchOperationsSharedOrders();if(!active)return;if(r.ok){setShared(r.orders);setSharedNotice("Pedidos compartidos sincronizados.")}else setSharedNotice(r.error||"No se pudieron consultar los pedidos compartidos.")};sync();const timer=setInterval(sync,10000);return()=>{active=false;clearInterval(timer)}},[]);
  useEffect(()=>{const id=new URLSearchParams(window.location.search).get("order");if(id){setQuery(id);setExpanded(id)}},[]);
  const resolveNoResponse=(order)=>{const current=loadMvp().orders.find(x=>x.id===order.id);if(!current||current.status!=="En entrega"||current.supportReview?.type!=="customer_no_response"||current.supportReview?.status!=="Pendiente")return;order=current;const at=new Date().toISOString();const updated=updateOrder(order.id,{status:"Cancelado",supportReview:{...order.supportReview,status:"Atendido",resolution:"Cliente sin respuesta",resolvedAt:at},cancelledAt:at,cancelReason:"Cliente sin respuesta tras protocolo de contacto",deliveryEvents:[...(order.deliveryEvents||[]),{type:"support_no_response_closed",at}]});if(updated&&order.courierId){const driver=loadCouriers().find(x=>x.id===order.courierId);if(driver){const remaining=Math.max(0,(driver.activeOrders||1)-1);const finishing=driver.endingShift===true;if(finishing&&remaining===0)updateCourier(driver.id,{activeOrders:0,online:false,available:true,endingShift:false,status:"Desconectado"});else updateCourier(driver.id,{activeOrders:remaining,status:finishing?"Terminando jornada":remaining>0?"En entrega":"Disponible"})}}};
  const downloadCsv=()=>{const content=ordersToCsv(rows.filter(o=>!o.id.startsWith("CF-DEMO-")));const blob=new Blob([content],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="citrifood-pedidos-demo-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
- const all=[...actual,...seed];
+ const sharedRows=shared.map(o=>({...o,id:o.id,restaurant:o.restaurant_name,customer:"Cliente de cuenta",address:o.delivery_address,deliveryNotes:o.delivery_notes,paymentMethod:o.payment_method,total:Number(o.total_cents||0)/100,createdAt:o.created_at,courier:o.courier_id?"Asignado":"Sin asignar",shared:true}));
+ const all=[...sharedRows,...actual,...seed];
  const search=query.trim().toLocaleLowerCase("es-MX");
  const rows=all.filter(x=>(!issuesOnly||x.deliveryIssue&&!x.deliveryIssue.resolvedAt)&&(!supportOnly||x.supportReview?.status==="Pendiente")&&(filter==="Todos"||x.status===filter)&&(!search||[x.id,x.restaurant,x.customer,x.address,x.deliveryNotes,x.courier].some(v=>String(v||"").toLocaleLowerCase("es-MX").includes(search))));
  return <main className="ordersAdmin">
   <header><a href="/operaciones">← Operaciones</a><b>CitriFood · Pedidos</b></header>
   <h1>Pedidos</h1>
-  <p>Pedidos de este navegador y ejemplos identificados. Asignación manual de demostración; no hay datos compartidos entre dispositivos.</p>
+  <p>Pedidos compartidos de Supabase, pedidos locales de este navegador y ejemplos identificados.</p>{sharedNotice&&<p><b>Compartidos:</b> {sharedNotice} · {shared.length} pedido(s)</p>}
   <label className="orderSearch">Buscar pedido, restaurante, cliente o dirección
    <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Ej. CF-, Burger House o Centro"/>
   </label>
