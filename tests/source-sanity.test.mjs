@@ -20,3 +20,14 @@ test("shared order screens use realtime with a 60 second fallback",()=>{
   assert.doesNotMatch(source,/setInterval\([^,]+,(?:8000|10000)\)/,name+" must not use the old 8-10 second polling loop");
  }
 });
+
+test("customer shared order API supports scoped single-order lookup",()=>{
+ const client=fs.readFileSync(new URL("../lib/customer-shared-orders.js",import.meta.url),"utf8");
+ const route=fs.readFileSync(new URL("../app/api/orders/route.js",import.meta.url),"utf8");
+ const shared=fs.readFileSync(new URL("../lib/shared-orders.js",import.meta.url),"utf8");
+ assert.match(client,/export async function fetchSharedCustomerOrder\(orderId\)/);
+ assert.match(client,/\/api\/orders\?orderId=/);
+ assert.match(route,/searchParams\.get\("orderId"\)/);
+ assert.match(shared,/p_order_id/);
+ assert.match(shared,/Identificador de pedido inválido/);
+});
