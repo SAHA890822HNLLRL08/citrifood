@@ -26,8 +26,16 @@ test("customer shared order API supports scoped single-order lookup",()=>{
  const route=fs.readFileSync(new URL("../app/api/orders/route.js",import.meta.url),"utf8");
  const shared=fs.readFileSync(new URL("../lib/shared-orders.js",import.meta.url),"utf8");
  assert.match(client,/export async function fetchSharedCustomerOrder\(orderId\)/);
- assert.match(client,/\/api\/orders\?orderId=/);
- assert.match(route,/searchParams\.get\("orderId"\)/);
+ assert.match(client,/\/api\/orders\?id=/);
+ assert.match(route,/searchParams\.get\("id"\)/);
+ assert.match(shared,/rpc\/cf_customer_order/);
  assert.match(shared,/p_order_id/);
- assert.match(shared,/Identificador de pedido inválido/);
+ assert.match(shared,/Pedido inválido/);
+});
+
+test("customer cancellation refreshes only the cancelled shared order",()=>{
+ const client=fs.readFileSync(new URL("../lib/customer-shared-orders.js",import.meta.url),"utf8");
+ assert.match(client,/cf_customer_cancel_order/);
+ assert.match(client,/fetchSharedCustomerOrder\(orderId\)/);
+ assert.match(client,/\{ok:true,order:refreshed\.order\}/);
 });
