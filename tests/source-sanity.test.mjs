@@ -39,3 +39,11 @@ test("customer cancellation refreshes only the cancelled shared order",()=>{
  assert.match(client,/fetchSharedCustomerOrder\(orderId\)/);
  assert.match(client,/\{ok:true,order:refreshed\.order\}/);
 });
+
+test("customer uses shared Supabase tracking as the primary successful checkout path",()=>{
+ const customer=fs.readFileSync(new URL("../app/page.js",import.meta.url),"utf8");
+ assert.match(customer,/fetchSharedCustomerOrder\(trackedId\)/);
+ assert.match(customer,/setSharedTrackedOrder\(shared\.order\)/);
+ assert.match(customer,/setOrdered\(false\)/);
+ assert.doesNotMatch(customer,/const refresh=async\(\)=>\{const result=await fetchSharedCustomerOrders\(\);if\(!active/);
+});
