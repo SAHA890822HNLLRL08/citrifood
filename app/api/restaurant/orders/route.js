@@ -15,7 +15,7 @@ export async function GET(request){
   if(!members.ok)return respond({error:"No se pudo comprobar el acceso al restaurante."},503);
   const names=await members.json();
   if(!Array.isArray(names)||names.length===0)return respond({restaurants:[],orders:[],message:"Tu cuenta todavía no está asignada a un restaurante del piloto."});
-  const orders=await fetch(config.url+"/rest/v1/cf_orders?select=id,restaurant_name,items,total_cents,status,created_at&order=created_at.desc&limit=100",options);
+  const orders=await fetch(config.url+"/rest/v1/cf_orders?select=id,restaurant_name,items,total_cents,payment_method,status,created_at,ready_at,courier_id,arrived_restaurant_at,restaurant_arrival_verified,picked_up_at&order=created_at.desc&limit=100",options);
   if(!orders.ok)return respond({error:"No se pudieron consultar los pedidos del restaurante."},503);
   const data=await orders.json();
   const allowed=new Set(names.map(x=>x.restaurant_name));
